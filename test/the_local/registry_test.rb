@@ -33,5 +33,11 @@ module TheLocal
       assert_equal ["keystone-scaffold.md", "event_engine-define.md"],
                    TheLocal.registry.agents.map(&:filename)
     end
+
+    def test_register_wires_agent_attributes_through_to_the_rendered_markdown
+      register_scaffold
+
+      assert_includes TheLocal.registry.agents.first.to_markdown, "API docs."
+    end
   end
 end
