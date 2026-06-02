@@ -16,5 +16,15 @@ module TheLocal
     def test_filename_namespaces_the_agent_under_its_provider
       assert_equal "keystone-scaffold.md", build.filename
     end
+
+    def test_to_markdown_opens_with_yaml_frontmatter
+      assert build.to_markdown.start_with?(<<~FRONTMATTER)
+        ---
+        name: keystone-scaffold
+        description: Use PROACTIVELY for UI work.
+        tools: Read, Write, Edit
+        ---
+      FRONTMATTER
+    end
   end
 end
