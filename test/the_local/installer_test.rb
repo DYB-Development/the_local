@@ -43,5 +43,19 @@ module TheLocal
         refute_path_exists File.join(dir, ".claude/agents/some_transitive_gem-helper.md")
       end
     end
+
+    def test_writes_every_allowed_agent
+      TheLocal.register("keystone_ui", prefix: "keystone") do |c|
+        c.agent "scaffold", description: "…", tools: "Read", body: "…"
+        c.agent "review", description: "…", tools: "Read", body: "…"
+      end
+
+      Dir.mktmpdir do |dir|
+        install_into(dir, allowed_gems: ["keystone_ui"])
+
+        assert_equal %w[keystone-review.md keystone-scaffold.md],
+                     Dir.children(File.join(dir, ".claude/agents")).sort
+      end
+    end
   end
 end
