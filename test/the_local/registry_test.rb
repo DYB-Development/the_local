@@ -23,5 +23,15 @@ module TheLocal
 
       assert_equal ["keystone-scaffold.md"], TheLocal.registry.agents.map(&:filename)
     end
+
+    def test_register_accumulates_agents_across_providers
+      register_scaffold
+      TheLocal.register("event_engine") do |c|
+        c.agent "define", description: "…", tools: "Read", body: "…"
+      end
+
+      assert_equal ["keystone-scaffold.md", "event_engine-define.md"],
+                   TheLocal.registry.agents.map(&:filename)
+    end
   end
 end
