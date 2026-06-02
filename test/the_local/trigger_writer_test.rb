@@ -37,5 +37,15 @@ module TheLocal
         refute_includes writer(dir, allowed_gems: ["keystone_ui"]).rule, "some_transitive_gem"
       end
     end
+
+    def test_call_creates_claude_md_with_the_rule_when_absent
+      register_keystone
+
+      Dir.mktmpdir do |dir|
+        writer(dir).call
+
+        assert_equal "#{writer(dir).rule}\n", File.read(File.join(dir, "CLAUDE.md"))
+      end
+    end
   end
 end

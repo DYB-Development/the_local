@@ -16,6 +16,12 @@ module TheLocal
       @filename = filename
     end
 
+    def call
+      path = File.join(@destination, @filename)
+      existing = File.exist?(path) ? File.read(path) : ""
+      File.write(path, "#{merge(existing)}\n")
+    end
+
     def rule
       <<~MARKDOWN.chomp
         #{BEGIN_MARKER}
@@ -33,6 +39,16 @@ module TheLocal
     end
 
     private
+
+    # Replaces an existing marked section in place, or appends one, so re-running
+    # re-syncs the rule without duplicating or clobbering the host's own content.
+    def merge(existing)
+      section = /#{Regexp.escape(BEGIN_MARKER)}.*?#{Regexp.escape(END_MARKER)}/m
+      return existing.sub(section, rule) if existing.match?(section)
+      return rule if existing.strip.empty?
+
+      "#{existing.chomp}\n\n#{rule}"
+    end
 
     def bullets
       allowed_providers.map do |provider|
