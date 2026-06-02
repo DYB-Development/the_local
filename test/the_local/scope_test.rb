@@ -21,5 +21,25 @@ module TheLocal
 
       assert_equal ["keystone_ui"], result
     end
+
+    def test_excludes_a_transitive_provider
+      result = allowed(
+        provider_gem_names: ["transitive_gem"],
+        direct_dependencies: ["keystone_ui"],
+        bundled_gems: %w[keystone_ui transitive_gem]
+      )
+
+      assert_equal [], result
+    end
+
+    def test_includes_the_app_itself_a_provider_that_is_not_a_bundled_gem
+      result = allowed(
+        provider_gem_names: ["my_app"],
+        direct_dependencies: ["keystone_ui"],
+        bundled_gems: ["keystone_ui"]
+      )
+
+      assert_equal ["my_app"], result
+    end
   end
 end
