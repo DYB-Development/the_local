@@ -47,6 +47,15 @@ module TheLocal
         end
       end
 
+      def test_adds_the_local_as_a_soft_dependency_to_the_gemfile
+        Dir.mktmpdir do |dir|
+          run_generator_into(dir)
+
+          assert_includes File.read(File.join(dir, "Gemfile")),
+            %(gem "the_local", github: "tylercschneider/the_local")
+        end
+      end
+
       # The scaffolded companion must register the common command interface that
       # every provider exposes to apps: info, install, and the domain worker.
       def test_companion_registers_the_common_command_interface

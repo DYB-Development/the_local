@@ -14,6 +14,8 @@ module TheLocal
     class ProviderGenerator < Rails::Generators::Base
       source_root File.expand_path("templates", __dir__)
 
+      GEMFILE_LINE = %(gem "the_local", github: "tylercschneider/the_local")
+
       desc "Scaffold the_local provider wiring (info/install/worker locals) into this gem"
 
       argument :gem_name, type: :string, desc: "The providing gem's name, e.g. citizen"
@@ -34,6 +36,16 @@ module TheLocal
 
       def create_companion
         template "the_local.rb.tt", "lib/#{gem_name}/the_local.rb"
+      end
+
+      def add_to_gemfile
+        gemfile = File.join(destination_root, "Gemfile")
+        return unless File.exist?(gemfile)
+        return if File.read(gemfile).include?(GEMFILE_LINE)
+
+        append_to_file "Gemfile",
+          "\n# Optional companion: #{gem_name} registers its locals with the_local " \
+          "when present.\n# Registration is guarded, so #{gem_name} works standalone.\n#{GEMFILE_LINE}\n"
       end
 
       private
