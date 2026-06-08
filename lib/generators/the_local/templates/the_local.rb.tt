@@ -1,0 +1,45 @@
+# frozen_string_literal: true
+
+require_relative "reference"
+
+module <%= module_name %>
+  # Registers <%= gem_name %>'s locals (Claude Code subagents) with the_local.
+  # These are the common command interface every provider exposes to apps:
+  # `info` (read-only, explains the gem), `install` (sets it up in a host), and
+  # `<%= worker %>` (the proactive domain worker). Soft dependency: registration
+  # is a no-op when the_local is absent.
+  module Companion
+    def self.register!
+      TheLocal.register("<%= gem_name %>"<%= ", prefix: \"#{prefix}\"" unless prefix == gem_name %>, scope: "<%= scope %>") do |c|
+        c.agent "info",
+          description: "Use to learn what <%= gem_name %> offers — its API and conventions.",
+          tools: "Read",
+          body: "You explain what <%= gem_name %> does and how to use it, answering from the " \
+                "reference. You make no changes. TODO: tailor this body to <%= gem_name %>.",
+          knowledge: <%= module_name %>::Reference.content
+
+        c.agent "install",
+          description: "Use to add <%= gem_name %> to a project and set it up correctly.",
+          tools: "Bash, Read, Edit",
+          body: "You add <%= gem_name %> to the project and complete its setup, following the " \
+                "reference's install section exactly. TODO: tailor this body to <%= gem_name %>.",
+          knowledge: <%= module_name %>::Reference.content
+
+        c.agent "<%= worker %>",
+          description: "Use PROACTIVELY for any <%= gem_name %> work. MUST BE USED instead of " \
+                       "hand-rolling it. TODO: name the concrete tasks this local owns.",
+          tools: "Read, Write, Edit, Grep",
+          body: "You do <%= gem_name %> work following the reference's conventions. TODO: tailor " \
+                "this body to <%= gem_name %>.",
+          knowledge: <%= module_name %>::Reference.content
+      end
+    end
+  end
+end
+
+begin
+  require "the_local"
+  <%= module_name %>::Companion.register!
+rescue LoadError
+  # the_local not installed — <%= gem_name %> works standalone.
+end
