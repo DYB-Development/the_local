@@ -28,6 +28,10 @@ module TheLocal
         template "reference.rb.tt", "lib/#{gem_name}/reference.rb"
       end
 
+      def create_guide
+        template "guide.md.tt", "lib/#{gem_name}/reference/guide.md"
+      end
+
       def create_companion
         template "the_local.rb.tt", "lib/#{gem_name}/the_local.rb"
       end
