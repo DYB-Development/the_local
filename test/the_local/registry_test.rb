@@ -62,6 +62,16 @@ module TheLocal
       assert_nil TheLocal.registry.agents.first.source_path
     end
 
+    def test_register_passes_agents_dir_through_to_its_agents
+      TheLocal.register("keystone_ui", prefix: "keystone",
+                                       agents_dir: "/gems/keystone/the_local/agents") do |c|
+        c.agent "scaffold", description: "…", tools: "Read", body: "…"
+      end
+
+      assert_equal "/gems/keystone/the_local/agents/keystone-scaffold.md",
+                   TheLocal.registry.agents.first.source_path
+    end
+
     def test_register_records_the_provider_with_its_scope
       TheLocal.register("keystone_ui", prefix: "keystone", scope: "UI — pages, forms, tables") do |c|
         c.agent "scaffold", description: "…", tools: "Read", body: "…"
