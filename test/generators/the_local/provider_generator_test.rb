@@ -75,11 +75,41 @@ module TheLocal
         end
       end
 
+      def test_builds_the_committed_agent_files_on_scaffold
+        Dir.mktmpdir do |dir|
+          run_generator_into(dir)
+
+          assert_path_exists File.join(dir, "lib/demo/the_local/agents/demo-info.md")
+        end
+      end
+
+      def test_hooks_the_build_task_into_the_rakefile
+        Dir.mktmpdir do |dir|
+          File.write(File.join(dir, "Rakefile"), "# frozen_string_literal: true\n")
+          run_generator_into(dir)
+
+          assert_includes File.read(File.join(dir, "Rakefile")), %(require "the_local/rake")
+        end
+      end
+
+      # The committed .md files live beside the companion, under
+      # lib/<gem>/the_local/agents/, so the host installer can copy them verbatim.
+      def test_companion_registers_agents_with_a_committed_source_path
+        Dir.mktmpdir do |dir|
+          run_generator_into(dir)
+          TheLocal.reset!
+          load File.join(dir, "lib/demo/the_local.rb")
+
+          assert TheLocal.registry.agents.first.source_path.end_with?("lib/demo/the_local/agents/demo-info.md")
+        end
+      end
+
       # The scaffolded companion must register the common command interface that
       # every provider exposes to apps: info, install, and the domain worker.
       def test_companion_registers_the_common_command_interface
         Dir.mktmpdir do |dir|
           run_generator_into(dir)
+          TheLocal.reset!
           load File.join(dir, "lib/demo/the_local.rb")
 
           assert_equal %w[info install develop], TheLocal.registry.agents.map(&:name)
