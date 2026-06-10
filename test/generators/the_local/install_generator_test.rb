@@ -13,8 +13,6 @@ module TheLocal
         TheLocal.reset!
       end
 
-      # Register a provider with committed agent files in gem_dir, as a real
-      # provider ships them, so the generator has files to install.
       def register_keystone(agents_dir:)
         TheLocal.register("keystone_ui", prefix: "keystone", scope: "UI work", agents_dir: agents_dir) do |c|
           c.agent "scaffold", description: "…", tools: "Read", body: "…"
