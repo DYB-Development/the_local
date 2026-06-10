@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "rails/generators"
+require "the_local/builder"
 
 module TheLocal
   module Generators
@@ -66,6 +67,18 @@ module TheLocal
         append_to_file "Rakefile",
                        "\n# Render #{gem_name}'s committed the_local agent files: `rake the_local:build`.\n" \
                        "require \"#{gem_name}\"\n#{RAKEFILE_REQUIRE}\n"
+      end
+
+      # Render the committed .md files now, so they land in the diff for review.
+      # Loading the companion registers this gem's locals; reset first so only
+      # they are built, not anything else the process may have registered.
+      def build_agent_files
+        companion = File.join(destination_root, "lib", gem_name, "the_local.rb")
+        return unless File.exist?(companion)
+
+        TheLocal.reset!
+        load companion
+        TheLocal::Builder.new(registry: TheLocal.registry).call
       end
 
       private
