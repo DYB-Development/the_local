@@ -17,6 +17,15 @@ Gem::Specification.new do |spec|
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.2.0"
 
+  spec.post_install_message = <<~MSG
+    the_local is installed. To copy its Claude Code agents into this project, run:
+
+        bundle exec the_local install
+
+    That installs the locals contributed by your direct dependencies into
+    .claude/agents/ and writes the delegation trigger. Re-run it after bundle changes.
+  MSG
+
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "#{spec.homepage}/tree/main"
