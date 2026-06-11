@@ -21,7 +21,7 @@ or install it directly with `gem install the_local`. To track an unreleased
 change, point at the repo instead:
 
 ```ruby
-gem "the_local", github: "tylercschneider/the_local"
+gem "the_local", github: "DYB-Development/the_local"
 ```
 
 The gem's core is Rails-free, but the primary documented workflow uses the
@@ -65,7 +65,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/tylercschneider/the_local.
+Bug reports and pull requests are welcome on GitHub at https://github.com/DYB-Development/the_local.
 
 ## License
 
