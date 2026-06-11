@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module <%= module_name %>
+<%= open_module %>
   # Single source of truth for <%= gem_name %>'s user-facing API, read by the
   # the_local companion subagents so their guidance never drifts from the docs.
   module Reference
@@ -14,4 +14,4 @@ module <%= module_name %>
       File.read(File.join(DIR, name)).chomp
     end
   end
-end
+<%= close_module %>

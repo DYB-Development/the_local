@@ -29,15 +29,15 @@ module TheLocal
                             desc: "Name of the domain worker facet (develop for libraries, operate for CLIs)"
 
       def create_reference
-        template "reference.rb.tt", "lib/#{gem_name}/reference.rb"
+        template "reference.rb.tt", "lib/#{lib_path}/reference.rb"
       end
 
       def create_guide
-        template "guide.md.tt", "lib/#{gem_name}/reference/guide.md"
+        template "guide.md.tt", "lib/#{lib_path}/reference/guide.md"
       end
 
       def create_companion
-        template "the_local.rb.tt", "lib/#{gem_name}/the_local.rb"
+        template "the_local.rb.tt", "lib/#{lib_path}/the_local.rb"
       end
 
       def add_to_gemfile
@@ -75,7 +75,7 @@ module TheLocal
       # Loading the companion registers this gem's locals; reset first so only
       # they are built, not anything else the process may have registered.
       def build_agent_files
-        companion = File.join(destination_root, "lib", gem_name, "the_local.rb")
+        companion = File.join(destination_root, "lib", lib_path, "the_local.rb")
         return unless File.exist?(companion)
 
         TheLocal.reset!
@@ -104,8 +104,20 @@ module TheLocal
         options[:worker]
       end
 
+      def lib_path
+        gem_name.tr("-", "/")
+      end
+
       def module_name
-        gem_name.split(/[_-]/).map(&:capitalize).join
+        gem_name.split("-").map { |segment| segment.split("_").map(&:capitalize).join }.join("::")
+      end
+
+      def open_module
+        module_name.split("::").map { |name| "module #{name}" }.join("\n")
+      end
+
+      def close_module
+        module_name.split("::").map { "end" }.join("\n")
       end
     end
   end

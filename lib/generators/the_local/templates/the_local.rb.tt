@@ -2,7 +2,7 @@
 
 require_relative "reference"
 
-module <%= module_name %>
+<%= open_module %>
   # Registers <%= gem_name %>'s locals (Claude Code subagents) with the_local.
   # These are the common command interface every provider exposes to apps:
   # `info` (read-only, explains the gem), `install` (sets it up in a host), and
@@ -36,7 +36,7 @@ module <%= module_name %>
       end
     end
   end
-end
+<%= close_module %>
 
 begin
   require "the_local"
