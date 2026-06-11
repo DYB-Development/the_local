@@ -23,6 +23,16 @@ module TheLocal
         capture_io { ProviderGenerator.start(args, destination_root: dir) }
       end
 
+      # Seed a namespaced/hyphenated gem: name event_engine-subscribers, module
+      # EventEngine::Subscribers, entrypoint lib/event_engine/subscribers.rb.
+      def run_namespaced_generator_into(dir)
+        File.write(File.join(dir, "Gemfile"), "source \"https://rubygems.org\"\ngemspec\n")
+        FileUtils.mkdir_p(File.join(dir, "lib", "event_engine"))
+        File.write(File.join(dir, "lib", "event_engine", "subscribers.rb"),
+                   "# frozen_string_literal: true\n\nmodule EventEngine\n  module Subscribers\n  end\nend\n")
+        capture_io { ProviderGenerator.start(["event_engine-subscribers"], destination_root: dir) }
+      end
+
       # Reloading the same generated companion across tests redefines its
       # register! method; silence that expected warning while loading.
       def load_companion(path)
@@ -142,6 +152,33 @@ module TheLocal
           load_companion(File.join(dir, "lib/demo/the_local.rb"))
 
           assert_equal %w[info install develop], TheLocal.registry.agents.map(&:name)
+        end
+      end
+
+      def test_scaffolds_nested_modules_at_the_namespaced_path_for_a_hyphenated_gem
+        Dir.mktmpdir do |dir|
+          run_namespaced_generator_into(dir)
+
+          assert_includes File.read(File.join(dir, "lib/event_engine/subscribers/the_local.rb")),
+                          "module EventEngine\nmodule Subscribers"
+        end
+      end
+
+      def test_requires_the_companion_from_the_namespaced_entrypoint
+        Dir.mktmpdir do |dir|
+          run_namespaced_generator_into(dir)
+
+          assert_includes File.read(File.join(dir, "lib/event_engine/subscribers.rb")),
+                          %(require_relative "subscribers/the_local")
+        end
+      end
+
+      def test_hooks_the_build_task_with_the_namespaced_require
+        Dir.mktmpdir do |dir|
+          File.write(File.join(dir, "Rakefile"), "# frozen_string_literal: true\n")
+          run_namespaced_generator_into(dir)
+
+          assert_includes File.read(File.join(dir, "Rakefile")), %(require "event_engine/subscribers")
         end
       end
     end
