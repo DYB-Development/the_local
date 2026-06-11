@@ -11,6 +11,7 @@ module TheLocal
   module Refresh
     def self.call(destination:, definition: Bundler.definition,
                   load_providers: -> { DiskProviders.load(registry: TheLocal.registry, specs: specs_from(definition)) })
+      TheLocal.reset!
       load_providers.call
       Sync.new(
         registry: TheLocal.registry,
