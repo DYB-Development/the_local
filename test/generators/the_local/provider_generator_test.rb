@@ -67,6 +67,21 @@ module TheLocal
         end
       end
 
+      # The guide must demand the literal interface (exact signatures) and a
+      # complete recipe, stating the bar plainly: a host agent implements from
+      # the guide alone, without opening source. That framing is what keeps
+      # agents out of the gem's source.
+      def test_guide_demands_the_interface_and_states_the_no_source_bar
+        Dir.mktmpdir do |dir|
+          run_generator_into(dir)
+          guide = File.read(File.join(dir, "lib/demo/reference/guide.md"))
+
+          assert_includes guide, "### Interface"
+          assert_includes guide, "exact signature"
+          assert_includes guide, "without ever opening"
+        end
+      end
+
       def test_adds_the_local_as_a_soft_dependency_to_the_gemfile
         Dir.mktmpdir do |dir|
           run_generator_into(dir)
