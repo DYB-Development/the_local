@@ -51,6 +51,18 @@ module TheLocal
         end
       end
 
+      # Bodies are a standard role identical across gems; specifics live in the
+      # guide. So the scaffold ships finished bodies, not a "tailor" TODO.
+      def test_scaffolds_standard_facet_bodies_that_defer_to_the_guide
+        Dir.mktmpdir do |dir|
+          run_generator_into(dir)
+          companion = File.read(File.join(dir, "lib/demo/the_local.rb"))
+
+          refute_includes companion, "tailor this body"
+          assert_includes companion, "never from demo's source"
+        end
+      end
+
       def test_scaffolds_the_reference_loader
         Dir.mktmpdir do |dir|
           run_generator_into(dir)
@@ -64,6 +76,30 @@ module TheLocal
           run_generator_into(dir)
 
           assert_path_exists File.join(dir, "lib/demo/reference/guide.md")
+        end
+      end
+
+      # The guide must demand exact signatures and state the no-source bar, so
+      # an agent implements from the guide instead of the gem's source.
+      def test_guide_demands_the_interface_and_states_the_no_source_bar
+        Dir.mktmpdir do |dir|
+          run_generator_into(dir)
+          guide = File.read(File.join(dir, "lib/demo/reference/guide.md"))
+
+          assert_includes guide, "### Interface"
+          assert_includes guide, "exact signature"
+          assert_includes guide, "without ever opening"
+        end
+      end
+
+      # The scaffold must carry the exact section headers the build gate requires,
+      # or a filled-in guide would still be rejected.
+      def test_guide_carries_every_canonical_section_the_gate_requires
+        Dir.mktmpdir do |dir|
+          run_generator_into(dir)
+          guide = File.read(File.join(dir, "lib/demo/reference/guide.md"))
+
+          TheLocal::Builder::REQUIRED_SECTIONS.each { |section| assert_includes guide, section }
         end
       end
 

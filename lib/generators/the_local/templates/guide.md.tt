@@ -3,13 +3,29 @@
 > **DO NOT** explore the <%= gem_name %> gem source code. This reference is the
 > complete user-facing API, embedded verbatim into every <%= gem_name %> local so
 > their guidance never drifts. Keep it the single source of truth.
+>
+> The bar for everything below: a host agent must be able to do <%= gem_name %>
+> work from this guide alone — exact signatures and a complete, copy-paste
+> recipe — without ever opening <%= gem_name %>'s source. If a signature or step
+> is missing, the agent will dig into source, which is the cost the_local exists
+> to remove. Replace every TODO; `rake the_local:build` refuses a guide that
+> still has one.
 
 TODO: One paragraph — what <%= gem_name %> is and the problem it solves.
 
-### What it offers
+### Interface
 
-TODO: The public API — the methods/classes/DSL a host actually calls, with tiny
-examples. This is what the `info` and `<%= worker %>` locals answer from.
+TODO: The literal public API a host calls — every method/class/DSL entry with
+its exact signature: arguments, which are required vs optional, and what it
+returns. Give the signatures themselves, each with a one-line example, not prose
+about them. This is what the `info` and `<%= worker %>` locals answer from, so an
+agent never has to read source to recall how a call is shaped.
+
+### Recipe
+
+TODO: A complete, copy-paste implementation of the most common <%= gem_name %>
+task — the whole thing, not a fragment — so the `<%= worker %>` local reproduces
+it identically every time instead of re-deriving it from source.
 
 ### Install
 
@@ -19,7 +35,7 @@ actually installed (e.g. for a Rails engine: add the gem, `bundle install`,
 install + run migrations, wire any concerns/initializers). Don't leave it
 generic.
 
-### <%= module_name %> conventions
+### Conventions
 
 TODO: The conventions the `<%= worker %>` local must enforce when doing
 <%= gem_name %> work, so usage stays consistent across the host.

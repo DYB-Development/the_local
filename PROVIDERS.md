@@ -74,10 +74,14 @@ them after filling in the real content (below).
 
 Then **fill in the scaffold** — this is the real work the generator can't do:
 
-1. Write `reference/guide.md` as the complete user-facing API. Its **Install**
-   section must be the exact, correct steps for *this* gem (for an engine:
-   add the gem → `bundle install` → install + run migrations → wire concerns /
-   initializers), not a generic placeholder.
+1. Write `reference/guide.md` as the complete user-facing API. The bar is that
+   a host agent can do your gem's work *from the guide alone, without opening
+   your source*: surface the literal interface (exact signatures — arguments,
+   required vs optional, return) and a complete copy-paste recipe for the common
+   task, not prose about them. Its **Install** section must be the exact, correct
+   steps for *this* gem (for an engine: add the gem → `bundle install` → install
+   + run migrations → wire concerns / initializers), not a generic placeholder.
+   Replace every `TODO:` — `rake the_local:build` refuses a guide that keeps one.
 2. Tailor the three agent `body:` strings in `the_local.rb` to the gem.
 3. **Rebuild and commit the locals.** The scaffold built `.md` from the TODO
    placeholders, so regenerate them from your real definition and commit them:

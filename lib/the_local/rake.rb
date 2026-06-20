@@ -11,7 +11,7 @@ require "the_local/builder"
 namespace :the_local do
   desc "Render this provider's committed agent files from its registered definitions"
   task :build do
-    written = TheLocal::Builder.new(registry: TheLocal.registry).call
+    written = TheLocal::Builder.new(registry: TheLocal.registry, validate: true).call
     puts "the_local: built #{written.length} agent file(s)"
   end
 

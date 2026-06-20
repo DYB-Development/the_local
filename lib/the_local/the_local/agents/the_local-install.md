@@ -66,10 +66,18 @@ its Rakefile also gets `rake the_local:install`. All three share one engine.
    registers the standard interface; hooks `the_local:build` into the `Rakefile`;
    requires the companion from the gem entrypoint; and builds the committed
    `.md` for review.
-2. Write `guide.md` in this format — it is the single source of truth and is
-   embedded verbatim into every local. Document *your own* gem only: what it
-   does, how to install it, the conventions to enforce. Name companion gems but
-   do not explain their internals.
+2. Write `guide.md` to the canonical shape — the same sections in every
+   provider, so the consuming agent meets one structure everywhere and
+   `rake the_local:build` rejects a guide missing one:
+   - **Interface** — every public call's *exact signature* (arguments, required
+     vs optional, return) as real signatures in a code block, not prose.
+   - **Recipe** — a complete copy-paste implementation of the common task.
+   - **Install** — the exact setup steps for *this* gem.
+   - **Conventions** — what the worker enforces to keep usage consistent.
+
+   The bar: a host agent does your gem's work from the guide alone, without ever
+   opening your source. Document your own gem only; name companion gems but do
+   not explain their internals.
 3. Tailor the register block bodies and `scope` to your gem; the standard
    interface is `info` (read-only explainer), `install` (sets the gem up in a
    host), and a domain worker (`develop` for libraries, `operate` for CLIs).
@@ -81,7 +89,26 @@ its Rakefile also gets `rake the_local:install`. All three share one engine.
    nothing, and if they are, you contribute everything. A drift test asserting
    each committed file equals its `agent.to_markdown` keeps the artifact honest.
 
-### TheLocal.register
+### Interface
+
+The complete public surface — every entry point with its exact signature, so a
+local answers from here instead of reading source.
+
+**Register locals (provider Ruby, behind a soft `require "the_local"` guard):**
+
+```ruby
+TheLocal.register(gem_name, prefix: gem_name, scope: nil, agents_dir: nil) { |c| … }
+#   Registers a provider and yields a Collector. gem_name is positional and
+#   filters to a host's direct dependencies; prefix is the filename namespace
+#   (defaults to gem_name); scope is the one-line delegation phrase; agents_dir
+#   is the absolute path to the committed .md files (each agent records its
+#   source_path there for the installer to copy verbatim).
+
+c.agent(name, description:, tools:, body:, knowledge: nil)
+#   Declares one local. name is positional; description, tools, body are
+#   required; knowledge — a String or Array of Strings, usually
+#   MyGem::Reference.content — is optional and appended below the body.
+```
 
 ```ruby
 TheLocal.register("my_gem", prefix: "my_gem", scope: "one-line domain phrase",
@@ -94,11 +121,62 @@ TheLocal.register("my_gem", prefix: "my_gem", scope: "one-line domain phrase",
 end
 ```
 
-- `gem_name` (first arg) filters to a host's direct dependencies.
-- `prefix` is the agent filename namespace; defaults to the gem name.
-- `scope` is a one-line domain phrase used to generate the delegation trigger.
-- `agents_dir` is the absolute path to the committed `.md` files; each agent
-  records its `source_path` there so the installer can copy it verbatim.
+**Build (provider Rakefile, after `require "the_local/rake"`):**
+
+- `rake the_local:build` — renders each registered agent to its committed
+  `lib/<gem>/the_local/agents/<prefix>-<name>.md`. Refuses to render a guide that
+  still holds a `TODO:` placeholder or is missing a canonical section.
+- `rake the_local:install` — installs/refreshes this project's own locals.
+
+**Host (consuming app or gem):**
+
+- `bundle exec the_local install` — CLI; syncs direct providers' locals into
+  `.claude/agents/` and writes the delegation trigger. No Rails required.
+- `bin/rails g the_local:install` and `rake the_local:refresh` — Rails equivalents.
+- `bin/rails g the_local:provider <gem_name> [--prefix P] [--scope "…"] [--worker develop|operate]`
+  — scaffolds the provider wiring (Reference loader, guide, companion).
+
+### Recipe
+
+Turn a gem into a provider — the complete companion, copy-paste and rename:
+
+```ruby
+# lib/my_gem/the_local.rb
+require_relative "reference"
+
+module MyGem
+  module Companion
+    def self.register!
+      TheLocal.register("my_gem", scope: "one-line domain phrase",
+                        agents_dir: File.expand_path("the_local/agents", __dir__)) do |c|
+        c.agent "info",
+                description: "Use to learn what my_gem offers.",
+                tools: "Read",
+                body: "You explain what my_gem does, answering only from your reference. " \
+                      "You make no changes and never read my_gem's source.",
+                knowledge: MyGem::Reference.content
+
+        c.agent "develop",
+                description: "Use PROACTIVELY for any my_gem work.",
+                tools: "Read, Write, Edit, Grep",
+                body: "You do my_gem work by following your reference's Interface, Recipe, " \
+                      "and Conventions exactly. You implement from the reference, never source.",
+                knowledge: MyGem::Reference.content
+      end
+    end
+  end
+end
+
+begin
+  require "the_local"
+  MyGem::Companion.register!
+rescue LoadError
+  # the_local not installed — my_gem works standalone.
+end
+```
+
+Then write `reference/guide.md` to the canonical shape, `rake the_local:build`,
+and commit `lib/my_gem/the_local/agents/*.md`.
 
 ### Conventions
 
