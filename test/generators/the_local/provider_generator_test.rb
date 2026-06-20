@@ -51,6 +51,20 @@ module TheLocal
         end
       end
 
+      # The facet bodies are a standard role, identical across every provider so
+      # the consuming agent gets consistent behavior; gem-specifics live in the
+      # guide, not the body. So the scaffold ships finished bodies (no "tailor"
+      # TODO) that defer to the reference and forbid reading source.
+      def test_scaffolds_standard_facet_bodies_that_defer_to_the_guide
+        Dir.mktmpdir do |dir|
+          run_generator_into(dir)
+          companion = File.read(File.join(dir, "lib/demo/the_local.rb"))
+
+          refute_includes companion, "tailor this body"
+          assert_includes companion, "never from demo's source"
+        end
+      end
+
       def test_scaffolds_the_reference_loader
         Dir.mktmpdir do |dir|
           run_generator_into(dir)

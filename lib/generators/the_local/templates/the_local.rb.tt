@@ -15,23 +15,26 @@ require_relative "reference"
         c.agent "info",
           description: "Use to learn what <%= gem_name %> offers — its API and conventions.",
           tools: "Read",
-          body: "You explain what <%= gem_name %> does and how to use it, answering from the " \
-                "reference. You make no changes. TODO: tailor this body to <%= gem_name %>.",
+          body: "You explain what <%= gem_name %> does and how to use it, answering only from " \
+                "your reference. You make no changes, and you never read <%= gem_name %>'s " \
+                "source — the reference is the complete interface.",
           knowledge: <%= module_name %>::Reference.content
 
         c.agent "install",
           description: "Use to add <%= gem_name %> to a project and set it up correctly.",
           tools: "Bash, Read, Edit",
-          body: "You add <%= gem_name %> to the project and complete its setup, following the " \
-                "reference's install section exactly. TODO: tailor this body to <%= gem_name %>.",
+          body: "You add <%= gem_name %> to the project and complete its setup by following your " \
+                "reference's Install section exactly, step by step. You do not invent steps it " \
+                "does not list, and you never read <%= gem_name %>'s source.",
           knowledge: <%= module_name %>::Reference.content
 
         c.agent "<%= worker %>",
           description: "Use PROACTIVELY for any <%= gem_name %> work. MUST BE USED instead of " \
                        "hand-rolling it. TODO: name the concrete tasks this local owns.",
           tools: "Read, Write, Edit, Grep",
-          body: "You do <%= gem_name %> work following the reference's conventions. TODO: tailor " \
-                "this body to <%= gem_name %>.",
+          body: "You do <%= gem_name %> work by following the Interface, Recipe, and Conventions " \
+                "in your reference exactly, so usage stays consistent across the host. You " \
+                "implement from the reference, never from <%= gem_name %>'s source.",
           knowledge: <%= module_name %>::Reference.content
       end
     end
