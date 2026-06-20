@@ -22,5 +22,15 @@ module TheLocal
       assert_includes content, "TheLocal.register(gem_name, prefix: gem_name, scope: nil, agents_dir: nil)"
       assert_includes content, "c.agent(name, description:, tools:, body:, knowledge: nil)"
     end
+
+    # The exemplar must model every canonical section the gate enforces, since
+    # the develop local copies its shape into the guides it authors.
+    def test_models_all_canonical_sections
+      content = Reference.content
+
+      ["### Interface", "### Recipe", "### Install", "### Conventions"].each do |section|
+        assert_includes content, section
+      end
+    end
   end
 end
