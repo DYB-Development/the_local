@@ -9,12 +9,8 @@ module TheLocal
   # the_local:build rake task a provider runs. Agents that declared no agents_dir
   # (and so have no source_path) are skipped: there is nowhere to write them.
   class Builder
-    # A guide that still carries scaffold placeholders hasn't surfaced the gem's
-    # real interface, so a host agent would have to dig into source — the exact
-    # thing the_local exists to prevent. When +validate+ is on, the build refuses
-    # such agents instead of shipping an incomplete local. A placeholder is a
-    # line-leading "TODO:"; prose that merely mentions the marker inline (as this
-    # guide does) is left alone.
+    # A real placeholder is a line-leading "TODO:"; an inline mention of the
+    # marker (a guide documenting the convention) is left alone.
     PLACEHOLDER = /^\s*TODO:/
 
     def initialize(registry:, validate: false)

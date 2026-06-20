@@ -51,10 +51,8 @@ module TheLocal
         end
       end
 
-      # The facet bodies are a standard role, identical across every provider so
-      # the consuming agent gets consistent behavior; gem-specifics live in the
-      # guide, not the body. So the scaffold ships finished bodies (no "tailor"
-      # TODO) that defer to the reference and forbid reading source.
+      # Bodies are a standard role identical across gems; specifics live in the
+      # guide. So the scaffold ships finished bodies, not a "tailor" TODO.
       def test_scaffolds_standard_facet_bodies_that_defer_to_the_guide
         Dir.mktmpdir do |dir|
           run_generator_into(dir)
@@ -81,10 +79,8 @@ module TheLocal
         end
       end
 
-      # The guide must demand the literal interface (exact signatures) and a
-      # complete recipe, stating the bar plainly: a host agent implements from
-      # the guide alone, without opening source. That framing is what keeps
-      # agents out of the gem's source.
+      # The guide must demand exact signatures and state the no-source bar, so
+      # an agent implements from the guide instead of the gem's source.
       def test_guide_demands_the_interface_and_states_the_no_source_bar
         Dir.mktmpdir do |dir|
           run_generator_into(dir)
