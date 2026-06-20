@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.2.0] - 2026-06-20
+
 - `rake the_local:build` now refuses a guide that still holds line-leading
   `TODO:` placeholders or is missing a canonical section, so a provider can't
   ship a local that hasn't surfaced its gem's real interface (and would send
