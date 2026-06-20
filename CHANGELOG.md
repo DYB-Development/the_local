@@ -1,5 +1,12 @@
 ## [Unreleased]
 
+- `rake the_local:build` now refuses a guide that still holds line-leading
+  `TODO:` placeholders, so a provider can't ship a local that hasn't surfaced
+  its gem's real interface (and would send host agents digging into source).
+- The provider guide scaffold demands the literal interface — exact signatures
+  under an **Interface** section plus a complete copy-paste **Recipe** — and
+  the_local's own guide now models that with the `register` / `c.agent`
+  signatures, instead of narrative about the API.
 - Install instructions and the provider generator now use the published
   `gem "the_local"` instead of a `github:` git source, since the gem is on
   RubyGems.
