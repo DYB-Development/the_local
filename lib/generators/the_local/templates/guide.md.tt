@@ -35,7 +35,7 @@ actually installed (e.g. for a Rails engine: add the gem, `bundle install`,
 install + run migrations, wire any concerns/initializers). Don't leave it
 generic.
 
-### <%= module_name %> conventions
+### Conventions
 
 TODO: The conventions the `<%= worker %>` local must enforce when doing
 <%= gem_name %> work, so usage stays consistent across the host.

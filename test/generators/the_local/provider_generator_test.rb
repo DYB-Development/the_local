@@ -92,6 +92,17 @@ module TheLocal
         end
       end
 
+      # The scaffold must carry the exact section headers the build gate requires,
+      # or a filled-in guide would still be rejected.
+      def test_guide_carries_every_canonical_section_the_gate_requires
+        Dir.mktmpdir do |dir|
+          run_generator_into(dir)
+          guide = File.read(File.join(dir, "lib/demo/reference/guide.md"))
+
+          TheLocal::Builder::REQUIRED_SECTIONS.each { |section| assert_includes guide, section }
+        end
+      end
+
       def test_adds_the_local_as_a_soft_dependency_to_the_gemfile
         Dir.mktmpdir do |dir|
           run_generator_into(dir)
