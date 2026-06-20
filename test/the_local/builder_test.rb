@@ -40,10 +40,26 @@ module TheLocal
     def test_validate_allows_a_guide_that_only_mentions_the_marker_inline
       Dir.mktmpdir do |dir|
         TheLocal.register("keystone_ui", prefix: "keystone", agents_dir: dir) do |c|
-          c.agent "develop", description: "d", tools: "Read", body: "b", knowledge: "a `TODO:` mention"
+          c.agent "develop", description: "d", tools: "Read", body: "b",
+                             knowledge: "### Interface\n`x`\n### Install\ns\n### Conventions\na `TODO:` mention"
         end
 
         assert_equal 1, Builder.new(registry: TheLocal.registry, validate: true).call.size
+      end
+    end
+
+    def test_validate_rejects_a_guide_missing_a_required_section
+      Dir.mktmpdir do |dir|
+        TheLocal.register("keystone_ui", prefix: "keystone", agents_dir: dir) do |c|
+          c.agent "develop", description: "d", tools: "Read", body: "b",
+                             knowledge: "### Interface\n\n`foo`\n\n### Install\n\nsteps"
+        end
+
+        error = assert_raises(TheLocal::Error) do
+          Builder.new(registry: TheLocal.registry, validate: true).call
+        end
+
+        assert_includes error.message, "Conventions"
       end
     end
   end

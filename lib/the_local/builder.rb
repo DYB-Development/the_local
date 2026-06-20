@@ -13,6 +13,10 @@ module TheLocal
     # marker (a guide documenting the convention) is left alone.
     PLACEHOLDER = /^\s*TODO:/
 
+    # The canonical sections every guide must carry, so a consuming agent meets
+    # the same shape in every gem's local. Matched as header prefixes.
+    REQUIRED_SECTIONS = ["### Interface", "### Install", "### Conventions"].freeze
+
     def initialize(registry:, validate: false)
       @registry = registry
       @validate = validate
@@ -31,12 +35,19 @@ module TheLocal
     private
 
     def validate!
-      incomplete = buildable_agents.select { |agent| agent.to_markdown.match?(PLACEHOLDER) }
-      return if incomplete.empty?
+      problems = buildable_agents.flat_map { |agent| problems_for(agent) }
+      return if problems.empty?
 
-      names = incomplete.map(&:qualified_name).join(", ")
-      raise Error, "the_local: guide still has TODO: placeholders — fill them in " \
-                   "so the local surfaces the real interface (offending: #{names})"
+      raise Error, "the_local: incomplete guide(s):\n- #{problems.join("\n- ")}"
+    end
+
+    def problems_for(agent)
+      markdown = agent.to_markdown
+      problems = []
+      problems << "#{agent.qualified_name}: TODO: placeholders remain" if markdown.match?(PLACEHOLDER)
+      missing = REQUIRED_SECTIONS.reject { |section| markdown.include?(section) }
+      problems << "#{agent.qualified_name}: missing #{missing.join(", ")}" if missing.any?
+      problems
     end
 
     def buildable_agents
