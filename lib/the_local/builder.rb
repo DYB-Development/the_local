@@ -12,8 +12,10 @@ module TheLocal
     # A guide that still carries scaffold placeholders hasn't surfaced the gem's
     # real interface, so a host agent would have to dig into source — the exact
     # thing the_local exists to prevent. When +validate+ is on, the build refuses
-    # such agents instead of shipping an incomplete local.
-    TODO_MARKER = "TODO:"
+    # such agents instead of shipping an incomplete local. A placeholder is a
+    # line-leading "TODO:"; prose that merely mentions the marker inline (as this
+    # guide does) is left alone.
+    PLACEHOLDER = /^\s*TODO:/
 
     def initialize(registry:, validate: false)
       @registry = registry
@@ -33,11 +35,11 @@ module TheLocal
     private
 
     def validate!
-      incomplete = buildable_agents.select { |agent| agent.to_markdown.include?(TODO_MARKER) }
+      incomplete = buildable_agents.select { |agent| agent.to_markdown.match?(PLACEHOLDER) }
       return if incomplete.empty?
 
       names = incomplete.map(&:qualified_name).join(", ")
-      raise Error, "the_local: guide still has #{TODO_MARKER} placeholders — fill them in " \
+      raise Error, "the_local: guide still has TODO: placeholders — fill them in " \
                    "so the local surfaces the real interface (offending: #{names})"
     end
 

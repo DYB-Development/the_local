@@ -36,5 +36,15 @@ module TheLocal
         assert_includes error.message, "keystone-develop"
       end
     end
+
+    def test_validate_allows_a_guide_that_only_mentions_the_marker_inline
+      Dir.mktmpdir do |dir|
+        TheLocal.register("keystone_ui", prefix: "keystone", agents_dir: dir) do |c|
+          c.agent "develop", description: "d", tools: "Read", body: "b", knowledge: "a `TODO:` mention"
+        end
+
+        assert_equal 1, Builder.new(registry: TheLocal.registry, validate: true).call.size
+      end
+    end
   end
 end
