@@ -15,7 +15,7 @@ module TheLocal
 
     # The canonical sections every guide must carry, so a consuming agent meets
     # the same shape in every gem's local. Matched as header prefixes.
-    REQUIRED_SECTIONS = ["### Interface", "### Install", "### Conventions"].freeze
+    REQUIRED_SECTIONS = ["### Interface", "### Recipe", "### Install", "### Conventions"].freeze
 
     def initialize(registry:, validate: false)
       @registry = registry
