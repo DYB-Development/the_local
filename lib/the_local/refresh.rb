@@ -16,13 +16,18 @@ module TheLocal
       Sync.new(
         registry: TheLocal.registry,
         destination: destination,
-        direct_dependencies: definition.dependencies.map(&:name),
+        direct_dependencies: definition.dependencies.map(&:name) - [own_gem_name(definition, destination)],
         bundled_gems: definition.specs.map(&:name)
       ).call
     end
 
     def self.specs_from(definition)
       definition.specs.map { |spec| { name: spec.name, path: spec.full_gem_path } }
+    end
+
+    def self.own_gem_name(definition, destination)
+      here = File.expand_path(destination)
+      definition.specs.find { |spec| File.expand_path(spec.full_gem_path) == here }&.name
     end
   end
 end

@@ -38,5 +38,18 @@ module TheLocal
         end
       end
     end
+
+    def test_call_does_not_install_a_gems_own_locals_into_its_own_repo
+      Dir.mktmpdir do |gem_dir|
+        agents = File.join(gem_dir, "lib/widgets/the_local/agents")
+        FileUtils.mkdir_p(agents)
+        File.write(File.join(agents, "widgets-info.md"), "---\nname: widgets-info\ntools: Read\n---\n\nbody\n")
+        definition = FakeDefinition.new([Dep.new("widgets")], [Spec.new("widgets", gem_dir)], [:default])
+
+        Refresh.call(destination: gem_dir, definition: definition)
+
+        refute_path_exists File.join(gem_dir, ".claude/agents/widgets-info.md")
+      end
+    end
   end
 end
