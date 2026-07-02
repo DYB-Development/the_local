@@ -1,5 +1,15 @@
 ## [Unreleased]
 
+## [0.3.0] - 2026-07-01
+
+- Installing no longer writes a `develop_process_rules.md` into host apps. The
+  `ProcessDocWriter`/`ProcessRules` machinery and its bundled doc are removed, so
+  `Sync`/`refresh` only install locals and the delegation trigger — a gem's
+  process conventions belong in its own guide, not propagated as a shared file.
+- A gem no longer installs its own locals into its own repo: `refresh` excludes
+  the gem being run from the direct-dependency set, so a provider working on
+  itself doesn't copy its locals back into `.claude/agents/`.
+
 ## [0.2.0] - 2026-06-20
 
 - `rake the_local:build` now refuses a guide that still holds line-leading
