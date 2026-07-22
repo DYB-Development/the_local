@@ -2,6 +2,7 @@
 
 require_relative "the_local/version"
 require_relative "the_local/agent"
+require_relative "the_local/interface"
 require_relative "the_local/registry"
 require_relative "the_local/installer"
 require_relative "the_local/trigger_writer"
