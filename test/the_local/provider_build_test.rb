@@ -25,5 +25,13 @@ module TheLocal
         assert_equal %w[demo-info demo-install demo-develop], agents.map(&:qualified_name)
       end
     end
+
+    def test_call_writes_each_agent_to_the_gem_root
+      with_gem_root("demo") do |root|
+        ProviderBuild.new(root).call
+
+        assert_path_exists File.join(root, "the_local", "agents", "demo-info.md")
+      end
+    end
   end
 end

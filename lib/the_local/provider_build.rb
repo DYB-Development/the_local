@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require_relative "interface"
+require_relative "registry"
+require_relative "builder"
 
 module TheLocal
   # Renders a provider's committed agent files from its gem root, needing no
@@ -20,6 +22,12 @@ module TheLocal
         knowledge: File.read(File.join(@gem_root, GUIDE)).chomp,
         agents_dir: File.join(@gem_root, AGENTS_DIR)
       )
+    end
+
+    def call
+      registry = Registry.new
+      agents.each { |agent| registry.add(agent) }
+      Builder.new(registry: registry, validate: true).call
     end
 
     private
