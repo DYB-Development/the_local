@@ -2,16 +2,16 @@
 
 require "rake"
 require "the_local"
-require "the_local/builder"
+require "the_local/provider_build"
 
 # Gem-side build task. A provider adds `require "the_local/rake"` to its Rakefile
-# (after loading the gem, so its locals are registered) and runs
-# `rake the_local:build` to (re)render its committed .claude agent files from the
-# registered definitions. Host apps don't use this — they install/refresh.
+# and runs `rake the_local:build` to (re)render its committed agent files from
+# its the_local/guide.md — no registration code in the gem. Host apps don't use
+# this; they install/refresh.
 namespace :the_local do
-  desc "Render this provider's committed agent files from its registered definitions"
+  desc "Render this provider's committed agent files from its the_local/guide.md"
   task :build do
-    written = TheLocal::Builder.new(registry: TheLocal.registry, validate: true).call
+    written = TheLocal::ProviderBuild.new(Dir.pwd).call
     puts "the_local: built #{written.length} agent file(s)"
   end
 
