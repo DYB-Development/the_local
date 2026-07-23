@@ -26,8 +26,8 @@ gem "the_local", github: "DYB-Development/the_local"
 
 The gem's core is Rails-free, but the primary documented workflow uses the
 `bin/rails g the_local:install` / `the_local:provider` generators, so those steps
-assume a Rails host. The `the_local:refresh` rake task and the register API work
-without Rails.
+assume a Rails host. The `bundle exec the_local install` CLI and the
+`the_local:build`/`the_local:refresh` rake tasks work without Rails.
 
 ## Usage
 
@@ -45,13 +45,13 @@ happens in the provider gem at build time, not in the host — so every app on t
 same gem version gets a byte-identical local. Re-run `the_local:refresh` (rake)
 after a `bundle install`/`update` to re-sync.
 
-**Provider gem** — contribute the locals an app installs. A gem registers its
-agents with `TheLocal.register` behind a soft guard, exposing the common command
-interface (`info` / `install` / worker), then renders them to committed `.md`
-with `rake the_local:build`. Scaffold it with:
+**Provider gem** — contribute the locals an app installs. A gem writes one file,
+`the_local/guide.md`, and ships no Ruby; `the_local` renders the common command
+interface (`info` / `install` / `develop`) from it into committed `.md` with
+`rake the_local:build`. Scaffold it with:
 
 ```bash
-bin/rails g the_local:provider <gem_name> --scope "the gem's domain"
+bin/rails g the_local:provider
 ```
 
 See [PROVIDERS.md](PROVIDERS.md) for the full provider guide, including the
