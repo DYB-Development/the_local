@@ -8,79 +8,37 @@ module TheLocal
       TheLocal.reset!
     end
 
-    def register_scaffold
-      TheLocal.register("keystone_ui", prefix: "keystone") do |c|
-        c.agent "scaffold",
-                description: "Use PROACTIVELY for UI work.",
-                tools: "Read, Write, Edit",
-                body: "You build UI.",
-                knowledge: "API docs."
-      end
+    def agent(name:, gem_name: "keystone_ui", prefix: "keystone", knowledge: nil)
+      Agent.new(gem_name: gem_name, prefix: prefix, name: name, description: "…",
+                tools: "Read", body: "…", knowledge: knowledge, source_path: nil)
     end
 
-    def test_register_adds_the_agent_to_the_registry
-      register_scaffold
+    def test_add_collects_the_agent
+      TheLocal.registry.add(agent(name: "scaffold"))
 
       assert_equal ["keystone-scaffold.md"], TheLocal.registry.agents.map(&:filename)
     end
 
-    def test_register_records_the_gem_name_for_dependency_filtering
-      register_scaffold
-
-      assert_equal ["keystone_ui"], TheLocal.registry.agents.map(&:gem_name)
-    end
-
-    def test_register_accumulates_agents_across_providers
-      register_scaffold
-      TheLocal.register("event_engine") do |c|
-        c.agent "define", description: "…", tools: "Read", body: "…"
-      end
+    def test_add_accumulates_agents_across_providers
+      TheLocal.registry.add(agent(name: "scaffold"))
+      TheLocal.registry.add(agent(name: "define", gem_name: "event_engine", prefix: "event_engine"))
 
       assert_equal ["keystone-scaffold.md", "event_engine-define.md"],
                    TheLocal.registry.agents.map(&:filename)
     end
 
-    def test_register_wires_agent_attributes_through_to_the_rendered_markdown
-      register_scaffold
+    def test_add_provider_collects_the_provider
+      TheLocal.registry.add_provider(Provider.new(gem_name: "keystone_ui", prefix: "keystone", scope: "UI"))
 
-      assert_includes TheLocal.registry.agents.first.to_markdown, "API docs."
+      assert_equal ["keystone_ui"], TheLocal.registry.providers.map(&:gem_name)
     end
 
-    def test_collector_derives_source_path_from_its_agents_dir
-      collector = Collector.new("keystone_ui", "keystone", TheLocal.registry,
-                                agents_dir: "/gems/keystone/the_local/agents")
-      collector.agent "scaffold", description: "…", tools: "Read", body: "…"
+    def test_clear_empties_agents_and_providers
+      TheLocal.registry.add(agent(name: "scaffold"))
+      TheLocal.registry.add_provider(Provider.new(gem_name: "keystone_ui", prefix: "keystone", scope: nil))
+      TheLocal.reset!
 
-      assert_equal "/gems/keystone/the_local/agents/keystone-scaffold.md",
-                   TheLocal.registry.agents.first.source_path
-    end
-
-    def test_collector_leaves_source_path_nil_without_an_agents_dir
-      collector = Collector.new("keystone_ui", "keystone", TheLocal.registry)
-      collector.agent "scaffold", description: "…", tools: "Read", body: "…"
-
-      assert_nil TheLocal.registry.agents.first.source_path
-    end
-
-    def test_register_passes_agents_dir_through_to_its_agents
-      TheLocal.register("keystone_ui", prefix: "keystone",
-                                       agents_dir: "/gems/keystone/the_local/agents") do |c|
-        c.agent "scaffold", description: "…", tools: "Read", body: "…"
-      end
-
-      assert_equal "/gems/keystone/the_local/agents/keystone-scaffold.md",
-                   TheLocal.registry.agents.first.source_path
-    end
-
-    def test_register_records_the_provider_with_its_scope
-      TheLocal.register("keystone_ui", prefix: "keystone", scope: "UI — pages, forms, tables") do |c|
-        c.agent "scaffold", description: "…", tools: "Read", body: "…"
-      end
-
-      provider = TheLocal.registry.providers.first
-
-      assert_equal ["keystone_ui", "keystone", "UI — pages, forms, tables"],
-                   [provider.gem_name, provider.prefix, provider.scope]
+      assert_empty TheLocal.registry.agents
     end
   end
 end
