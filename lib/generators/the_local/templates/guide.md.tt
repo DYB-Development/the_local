@@ -18,13 +18,13 @@ TODO: One paragraph — what <%= gem_name %> is and the problem it solves.
 TODO: The literal public API a host calls — every method/class/DSL entry with
 its exact signature: arguments, which are required vs optional, and what it
 returns. Give the signatures themselves, each with a one-line example, not prose
-about them. This is what the `info` and `<%= worker %>` locals answer from, so an
+about them. This is what the `info` and `develop` locals answer from, so an
 agent never has to read source to recall how a call is shaped.
 
 ### Recipe
 
 TODO: A complete, copy-paste implementation of the most common <%= gem_name %>
-task — the whole thing, not a fragment — so the `<%= worker %>` local reproduces
+task — the whole thing, not a fragment — so the `develop` local reproduces
 it identically every time instead of re-deriving it from source.
 
 ### Install
@@ -37,5 +37,5 @@ generic.
 
 ### Conventions
 
-TODO: The conventions the `<%= worker %>` local must enforce when doing
+TODO: The conventions the `develop` local must enforce when doing
 <%= gem_name %> work, so usage stays consistent across the host.
