@@ -15,9 +15,11 @@ module TheLocal
     end
 
     def register_develop(dir, knowledge)
-      TheLocal.register("keystone_ui", prefix: "keystone", agents_dir: dir) do |c|
-        c.agent "develop", description: "d", tools: "Read", body: "b", knowledge: knowledge
-      end
+      TheLocal.registry.add(
+        Agent.new(gem_name: "keystone_ui", prefix: "keystone", name: "develop",
+                  description: "d", tools: "Read", body: "b", knowledge: knowledge,
+                  source_path: File.join(dir, "keystone-develop.md"))
+      )
     end
 
     def test_writes_each_agent_markdown_to_its_source_path

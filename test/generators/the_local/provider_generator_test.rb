@@ -3,88 +3,41 @@
 require "test_helper"
 require "tmpdir"
 require "rails/generators"
+require "the_local/builder"
 require "generators/the_local/provider_generator"
 
 module TheLocal
   module Generators
-    # Drives `the_local:provider`, the generator that scaffolds the provider
-    # wiring (the common info/install/worker command interface) into a gem.
+    # Drives `the_local:provider`, the generator that scaffolds a gem's guide —
+    # the only file a provider writes. The gem name comes from the gemspec, and
+    # the_local renders the locals from the guide; the gem carries no Ruby.
     class ProviderGeneratorTest < Minitest::Test
-      def setup
-        TheLocal.reset!
-      end
-
-      # Seed a minimal fake gem (Gemfile + entrypoint) and run the generator
-      # into it, non-interactively.
-      def run_generator_into(dir, args = ["demo"])
+      def run_generator_into(dir, name = "demo")
+        File.write(File.join(dir, "#{name}.gemspec"), "")
         File.write(File.join(dir, "Gemfile"), "source \"https://rubygems.org\"\ngemspec\n")
-        Dir.mkdir(File.join(dir, "lib"))
-        File.write(File.join(dir, "lib", "demo.rb"), "# frozen_string_literal: true\n\nmodule Demo\nend\n")
-        capture_io { ProviderGenerator.start(args, destination_root: dir) }
+        capture_io { ProviderGenerator.start([], destination_root: dir) }
       end
 
-      # Seed a namespaced/hyphenated gem: name event_engine-subscribers, module
-      # EventEngine::Subscribers, entrypoint lib/event_engine/subscribers.rb.
-      def run_namespaced_generator_into(dir)
-        File.write(File.join(dir, "Gemfile"), "source \"https://rubygems.org\"\ngemspec\n")
-        FileUtils.mkdir_p(File.join(dir, "lib", "event_engine"))
-        File.write(File.join(dir, "lib", "event_engine", "subscribers.rb"),
-                   "# frozen_string_literal: true\n\nmodule EventEngine\n  module Subscribers\n  end\nend\n")
-        capture_io { ProviderGenerator.start(["event_engine-subscribers"], destination_root: dir) }
-      end
-
-      # Reloading the same generated companion across tests redefines its
-      # register! method; silence that expected warning while loading.
-      def load_companion(path)
-        previous = $VERBOSE
-        $VERBOSE = nil
-        load path
-      ensure
-        $VERBOSE = previous
-      end
-
-      def test_scaffolds_the_companion_registration_file
+      def test_scaffolds_the_guide_at_the_gem_root
         Dir.mktmpdir do |dir|
           run_generator_into(dir)
 
-          assert_path_exists File.join(dir, "lib/demo/the_local.rb")
+          assert_path_exists File.join(dir, "the_local/guide.md")
         end
       end
 
-      # Bodies are a standard role identical across gems; specifics live in the
-      # guide. So the scaffold ships finished bodies, not a "tailor" TODO.
-      def test_scaffolds_standard_facet_bodies_that_defer_to_the_guide
+      def test_names_the_guide_for_the_gem_from_its_gemspec
         Dir.mktmpdir do |dir|
-          run_generator_into(dir)
-          companion = File.read(File.join(dir, "lib/demo/the_local.rb"))
+          run_generator_into(dir, "citizen")
 
-          refute_includes companion, "tailor this body"
-          assert_includes companion, "never from demo's source"
+          assert_includes File.read(File.join(dir, "the_local/guide.md")), "citizen"
         end
       end
 
-      def test_scaffolds_the_reference_loader
-        Dir.mktmpdir do |dir|
-          run_generator_into(dir)
-
-          assert_path_exists File.join(dir, "lib/demo/reference.rb")
-        end
-      end
-
-      def test_scaffolds_the_knowledge_guide
-        Dir.mktmpdir do |dir|
-          run_generator_into(dir)
-
-          assert_path_exists File.join(dir, "lib/demo/reference/guide.md")
-        end
-      end
-
-      # The guide must demand exact signatures and state the no-source bar, so
-      # an agent implements from the guide instead of the gem's source.
       def test_guide_demands_the_interface_and_states_the_no_source_bar
         Dir.mktmpdir do |dir|
           run_generator_into(dir)
-          guide = File.read(File.join(dir, "lib/demo/reference/guide.md"))
+          guide = File.read(File.join(dir, "the_local/guide.md"))
 
           assert_includes guide, "### Interface"
           assert_includes guide, "exact signature"
@@ -92,69 +45,39 @@ module TheLocal
         end
       end
 
-      # The scaffold must carry the exact section headers the build gate requires,
-      # or a filled-in guide would still be rejected.
       def test_guide_carries_every_canonical_section_the_gate_requires
         Dir.mktmpdir do |dir|
           run_generator_into(dir)
-          guide = File.read(File.join(dir, "lib/demo/reference/guide.md"))
+          guide = File.read(File.join(dir, "the_local/guide.md"))
 
           TheLocal::Builder::REQUIRED_SECTIONS.each { |section| assert_includes guide, section }
         end
       end
 
-      def test_adds_the_local_as_a_soft_dependency_to_the_gemfile
+      def test_adds_the_local_as_a_build_tool_to_the_gemfile
         Dir.mktmpdir do |dir|
           run_generator_into(dir)
 
-          assert_includes File.read(File.join(dir, "Gemfile")),
-                          %(gem "the_local"\n)
-        end
-      end
-
-      def test_does_not_add_a_self_reference_when_the_local_provisions_itself
-        Dir.mktmpdir do |dir|
-          File.write(File.join(dir, "Gemfile"), "source \"https://rubygems.org\"\ngemspec\n")
-          generator = ProviderGenerator.new(["the_local"], {}, destination_root: dir)
-          capture_io { generator.add_to_gemfile }
-
-          refute_includes File.read(File.join(dir, "Gemfile")), ProviderGenerator::GEMFILE_LINE
+          assert_includes File.read(File.join(dir, "Gemfile")), %(gem "the_local"\n)
         end
       end
 
       def test_gemfile_injection_is_idempotent_on_rerun
         Dir.mktmpdir do |dir|
           run_generator_into(dir)
-          rerun = ProviderGenerator.new(["demo"], {}, destination_root: dir)
-          capture_io { rerun.add_to_gemfile }
+          capture_io { ProviderGenerator.start([], destination_root: dir) }
 
           assert_equal 1, File.read(File.join(dir, "Gemfile")).scan(ProviderGenerator::GEMFILE_LINE).size
         end
       end
 
-      def test_requires_the_companion_from_the_gem_entrypoint
+      def test_does_not_add_a_self_reference_when_the_local_provisions_itself
         Dir.mktmpdir do |dir|
-          run_generator_into(dir)
+          File.write(File.join(dir, "the_local.gemspec"), "")
+          File.write(File.join(dir, "Gemfile"), "source \"https://rubygems.org\"\ngemspec\n")
+          capture_io { ProviderGenerator.start([], destination_root: dir) }
 
-          assert_includes File.read(File.join(dir, "lib/demo.rb")),
-                          %(require_relative "demo/the_local")
-        end
-      end
-
-      def test_renders_the_companion_with_a_non_ascii_scope
-        Dir.mktmpdir do |dir|
-          run_generator_into(dir, ["demo", "--scope", "UI work — components and recipes"])
-
-          assert_includes File.read(File.join(dir, "lib/demo/the_local.rb")),
-                          %(scope: "UI work — components and recipes")
-        end
-      end
-
-      def test_builds_the_committed_agent_files_on_scaffold
-        Dir.mktmpdir do |dir|
-          run_generator_into(dir)
-
-          assert_path_exists File.join(dir, "lib/demo/the_local/agents/demo-info.md")
+          refute_includes File.read(File.join(dir, "Gemfile")), ProviderGenerator::GEMFILE_LINE
         end
       end
 
@@ -167,54 +90,11 @@ module TheLocal
         end
       end
 
-      # The committed .md files live beside the companion, under
-      # lib/<gem>/the_local/agents/, so the host installer can copy them verbatim.
-      def test_companion_registers_agents_with_a_committed_source_path
+      def test_scaffolds_for_a_hyphenated_gem
         Dir.mktmpdir do |dir|
-          run_generator_into(dir)
-          TheLocal.reset!
-          load_companion(File.join(dir, "lib/demo/the_local.rb"))
+          run_generator_into(dir, "event_engine-subscribers")
 
-          assert TheLocal.registry.agents.first.source_path.end_with?("lib/demo/the_local/agents/demo-info.md")
-        end
-      end
-
-      # The scaffolded companion must register the common command interface that
-      # every provider exposes to apps: info, install, and the domain worker.
-      def test_companion_registers_the_common_command_interface
-        Dir.mktmpdir do |dir|
-          run_generator_into(dir)
-          TheLocal.reset!
-          load_companion(File.join(dir, "lib/demo/the_local.rb"))
-
-          assert_equal %w[info install develop], TheLocal.registry.agents.map(&:name)
-        end
-      end
-
-      def test_scaffolds_nested_modules_at_the_namespaced_path_for_a_hyphenated_gem
-        Dir.mktmpdir do |dir|
-          run_namespaced_generator_into(dir)
-
-          assert_includes File.read(File.join(dir, "lib/event_engine/subscribers/the_local.rb")),
-                          "module EventEngine\nmodule Subscribers"
-        end
-      end
-
-      def test_requires_the_companion_from_the_namespaced_entrypoint
-        Dir.mktmpdir do |dir|
-          run_namespaced_generator_into(dir)
-
-          assert_includes File.read(File.join(dir, "lib/event_engine/subscribers.rb")),
-                          %(require_relative "subscribers/the_local")
-        end
-      end
-
-      def test_hooks_the_build_task_with_the_namespaced_require
-        Dir.mktmpdir do |dir|
-          File.write(File.join(dir, "Rakefile"), "# frozen_string_literal: true\n")
-          run_namespaced_generator_into(dir)
-
-          assert_includes File.read(File.join(dir, "Rakefile")), %(require "event_engine/subscribers")
+          assert_includes File.read(File.join(dir, "the_local/guide.md")), "event_engine-subscribers"
         end
       end
 
@@ -223,15 +103,13 @@ module TheLocal
       # ancestor with a *.gemspec) before writing.
       def test_writes_to_the_gem_root_when_run_from_a_dummy_app
         Dir.mktmpdir do |gem_root|
-          File.write(File.join(gem_root, "demo.gemspec"), "# dummy gemspec\n")
+          File.write(File.join(gem_root, "demo.gemspec"), "")
           File.write(File.join(gem_root, "Gemfile"), "source \"https://rubygems.org\"\ngemspec\n")
-          FileUtils.mkdir_p(File.join(gem_root, "lib"))
-          File.write(File.join(gem_root, "lib", "demo.rb"), "# frozen_string_literal: true\n\nmodule Demo\nend\n")
           dummy = File.join(gem_root, "test", "dummy")
           FileUtils.mkdir_p(dummy)
-          capture_io { ProviderGenerator.start(["demo"], destination_root: dummy) }
+          capture_io { ProviderGenerator.start([], destination_root: dummy) }
 
-          assert_path_exists File.join(gem_root, "lib/demo/the_local.rb")
+          assert_path_exists File.join(gem_root, "the_local/guide.md")
         end
       end
     end

@@ -11,9 +11,12 @@ module TheLocal
     end
 
     def register_keystone(agents_dir:)
-      TheLocal.register("keystone_ui", prefix: "keystone", scope: "UI work", agents_dir: agents_dir) do |c|
-        c.agent "develop", description: "Build UI.", tools: "Read, Write, Edit", body: "…", knowledge: "API."
-      end
+      TheLocal.registry.add_provider(Provider.new(gem_name: "keystone_ui", prefix: "keystone", scope: "UI work"))
+      TheLocal.registry.add(
+        Agent.new(gem_name: "keystone_ui", prefix: "keystone", name: "develop",
+                  description: "Build UI.", tools: "Read, Write, Edit", body: "…", knowledge: "API.",
+                  source_path: File.join(agents_dir, "keystone-develop.md"))
+      )
       Builder.new(registry: TheLocal.registry).call
     end
 

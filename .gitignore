@@ -6,3 +6,6 @@
 /pkg/
 /spec/reports/
 /tmp/
+
+# the_local installs locals here; they are a working artifact, not source.
+/.claude/

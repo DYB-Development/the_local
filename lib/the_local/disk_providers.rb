@@ -8,14 +8,20 @@ module TheLocal
   # registry the install pipeline already reads, so Installer/TriggerWriter/Sync
   # are unchanged.
   module DiskProviders
-    AGENTS_GLOB = File.join("lib", "**", "the_local", "agents", "*.md")
+    AGENTS_GLOB = File.join("the_local", "agents", "*.md")
+    LEGACY_AGENTS_GLOB = File.join("lib", "**", "the_local", "agents", "*.md")
 
     def self.load(registry:, specs:)
       specs.each { |spec| register(registry, spec) }
     end
 
+    def self.agent_files(path)
+      rendered = Dir.glob(File.join(path, AGENTS_GLOB))
+      rendered.any? ? rendered : Dir.glob(File.join(path, LEGACY_AGENTS_GLOB))
+    end
+
     def self.register(registry, spec)
-      files = Dir.glob(File.join(spec[:path], AGENTS_GLOB))
+      files = agent_files(spec[:path])
       return if files.empty?
 
       agents = files.map { |file| agent_from(spec[:name], file) }

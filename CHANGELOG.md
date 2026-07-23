@@ -1,5 +1,17 @@
 ## [Unreleased]
 
+- A provider gem now ships **no Ruby**. Instead of a `TheLocal.register` block,
+  a `Reference` loader, and a companion, a provider writes one file —
+  `the_local/guide.md` at the gem root — and `the_local` renders the standard
+  `info` / `install` / `develop` locals from it. The gem name comes from the
+  gemspec. `TheLocal.register` and `Collector` are removed.
+- The committed locals move out of the require path to `the_local/agents/` at the
+  gem root. Install still discovers a provider's older `lib/**/the_local/agents/`
+  layout as a fallback until it is rebuilt.
+- `the_local:provider` scaffolds only `the_local/guide.md` and the Rakefile hook;
+  it no longer writes a companion, a reference loader, an entrypoint `require`, or
+  takes a gem-name argument. `the_local` is its own first guide-based provider.
+
 ## [0.3.0] - 2026-07-01
 
 - Installing no longer writes a `develop_process_rules.md` into host apps. The

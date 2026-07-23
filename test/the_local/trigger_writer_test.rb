@@ -10,9 +10,9 @@ module TheLocal
     end
 
     def register_keystone
-      TheLocal.register("keystone_ui", prefix: "keystone", scope: "UI — pages, forms, tables") do |c|
-        c.agent "scaffold", description: "…", tools: "Read", body: "…"
-      end
+      TheLocal.registry.add_provider(
+        Provider.new(gem_name: "keystone_ui", prefix: "keystone", scope: "UI — pages, forms, tables")
+      )
     end
 
     def writer(dir, allowed_gems: ["keystone_ui"])
@@ -29,9 +29,9 @@ module TheLocal
 
     def test_rule_excludes_providers_outside_the_allowed_gems
       register_keystone
-      TheLocal.register("some_transitive_gem", scope: "internal") do |c|
-        c.agent "helper", description: "…", tools: "Read", body: "…"
-      end
+      TheLocal.registry.add_provider(
+        Provider.new(gem_name: "some_transitive_gem", prefix: "some_transitive_gem", scope: "internal")
+      )
 
       Dir.mktmpdir do |dir|
         refute_includes writer(dir, allowed_gems: ["keystone_ui"]).rule, "some_transitive_gem"

@@ -2,21 +2,21 @@
 
 require "test_helper"
 require "rake"
+require "fileutils"
 require "tmpdir"
 
 module TheLocal
   class RakeTest < Minitest::Test
     def test_build_task_rejects_a_guide_with_todo_placeholders
-      TheLocal.reset!
-      Dir.mktmpdir do |dir|
-        TheLocal.register("keystone_ui", prefix: "keystone", agents_dir: dir) do |c|
-          c.agent "develop", description: "d", tools: "Read", body: "b", knowledge: "TODO: the API"
-        end
+      Dir.mktmpdir do |root|
+        File.write(File.join(root, "demo.gemspec"), "")
+        FileUtils.mkdir_p(File.join(root, "the_local"))
+        File.write(File.join(root, "the_local", "guide.md"), "TODO: the API")
 
-        assert_raises(TheLocal::Error) { rake_app["the_local:build"].invoke }
+        Dir.chdir(root) do
+          assert_raises(TheLocal::Error) { rake_app["the_local:build"].invoke }
+        end
       end
-    ensure
-      TheLocal.reset!
     end
 
     def test_defines_the_build_rake_task

@@ -10,13 +10,17 @@ module TheLocal
       TheLocal.reset!
     end
 
+    def add_agent(name, gem_name: "keystone_ui", prefix: "keystone", agents_dir: nil)
+      source_path = agents_dir && File.join(agents_dir, "#{prefix}-#{name}.md")
+      TheLocal.registry.add(
+        Agent.new(gem_name: gem_name, prefix: prefix, name: name,
+                  description: "Use PROACTIVELY for UI.", tools: "Read, Write, Edit",
+                  body: "You build UI.", knowledge: "API docs.", source_path: source_path)
+      )
+    end
+
     def build_keystone(agents_dir:, names: %w[scaffold])
-      TheLocal.register("keystone_ui", prefix: "keystone", agents_dir: agents_dir) do |c|
-        names.each do |name|
-          c.agent name, description: "Use PROACTIVELY for UI.", tools: "Read, Write, Edit",
-                        body: "You build UI.", knowledge: "API docs."
-        end
-      end
+      names.each { |name| add_agent(name, agents_dir: agents_dir) }
       Builder.new(registry: TheLocal.registry).call
     end
 
@@ -40,7 +44,7 @@ module TheLocal
     def test_skips_providers_outside_the_allowed_gems
       Dir.mktmpdir do |gem_dir|
         build_keystone(agents_dir: gem_dir)
-        TheLocal.register("some_transitive_gem") { |c| c.agent "helper", description: "…", tools: "Read", body: "…" }
+        add_agent("helper", gem_name: "some_transitive_gem", prefix: "some_transitive_gem")
 
         Dir.mktmpdir do |dir|
           install_into(dir, allowed_gems: ["keystone_ui"])
@@ -51,9 +55,7 @@ module TheLocal
     end
 
     def test_raises_an_actionable_error_when_an_allowed_agent_has_no_committed_file
-      TheLocal.register("keystone_ui", prefix: "keystone") do |c|
-        c.agent "scaffold", description: "…", tools: "Read", body: "…"
-      end
+      add_agent("scaffold", agents_dir: nil)
 
       Dir.mktmpdir do |dir|
         error = assert_raises(TheLocal::Error) { install_into(dir) }
