@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "format"
+require_relative "front_matter"
 
 module TheLocal
   # Verifies a provider's committed trio holds the fixed shape, without caring
@@ -16,12 +17,24 @@ module TheLocal
     end
 
     def problems
+      per_file_problems + scope_agreement_problems
+    end
+
+    private
+
+    def per_file_problems
       trio_files.flat_map do |file|
         Format.problems(File.read(file)).map { |problem| "#{File.basename(file)}: #{problem}" }
       end
     end
 
-    private
+    # scope is one provider-level phrase held redundantly in every trio file, so
+    # the three must agree. They can diverge when the creators run concurrently
+    # and each authors its own; a structure-only check would miss it.
+    def scope_agreement_problems
+      scopes = trio_files.map { |file| FrontMatter.new(File.read(file)).scope }.compact.uniq
+      scopes.size > 1 ? ["the trio's scope lines diverge"] : []
+    end
 
     def trio_files
       FACETS.map { |facet| File.join(@gem_root, "the_local", "agents", "#{gem_name}-#{facet}.md") }

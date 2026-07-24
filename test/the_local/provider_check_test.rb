@@ -30,5 +30,22 @@ module TheLocal
         refute_includes ProviderCheck.new(root).problems.join, "author"
       end
     end
+
+    def full(name, scope)
+      "---\nname: #{name}\ndescription: d\ntools: Read\nscope: #{scope}\n---\n\n" \
+        "## What demo is\n## Interface\n## How to use it\n## Conventions\n"
+    end
+
+    def test_reports_when_the_trio_scopes_diverge
+      Dir.mktmpdir do |root|
+        File.write(File.join(root, "demo.gemspec"), "")
+        agents = File.join(root, "the_local", "agents")
+        FileUtils.mkdir_p(agents)
+        File.write(File.join(agents, "demo-info.md"), full("demo-info", "emitting events"))
+        File.write(File.join(agents, "demo-develop.md"), full("demo-develop", "routing events"))
+
+        assert_includes ProviderCheck.new(root).problems, "the trio's scope lines diverge"
+      end
+    end
   end
 end
