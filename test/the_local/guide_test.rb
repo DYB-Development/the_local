@@ -1,0 +1,14 @@
+# frozen_string_literal: true
+
+require "test_helper"
+require "the_local/guide"
+
+module TheLocal
+  class GuideTest < Minitest::Test
+    def test_prose_excludes_the_front_matter
+      guide = Guide.new("---\nscope: events\n---\n\n## Demo\n")
+
+      assert_equal "## Demo", guide.prose
+    end
+  end
+end
