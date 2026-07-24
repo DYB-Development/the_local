@@ -29,6 +29,7 @@ module TheLocal
 
     def test_check_task_rejects_a_trio_that_breaks_the_format
       Dir.mktmpdir do |root|
+        File.write(File.join(root, "demo.gemspec"), "")
         agents = File.join(root, "the_local", "agents")
         FileUtils.mkdir_p(agents)
         File.write(File.join(agents, "demo-info.md"), "---\nname: demo-info\n---\n")
