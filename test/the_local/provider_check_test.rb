@@ -22,5 +22,13 @@ module TheLocal
         assert_includes ProviderCheck.new(root).problems, "demo-info.md: missing key: scope"
       end
     end
+
+    def test_ignores_agents_that_are_not_the_trio
+      with_agent("---\nname: demo-info\n---\n") do |root|
+        File.write(File.join(root, "the_local", "agents", "demo-author-info.md"), "---\nname: x\n---\n")
+
+        refute_includes ProviderCheck.new(root).problems.join, "author"
+      end
+    end
   end
 end
