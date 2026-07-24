@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require_relative "agent"
+require_relative "guide"
+require_relative "registry"
+
 module TheLocal
   # Discovers providers by reading their committed agent files straight from each
   # bundled gem's path on disk — no gem code is loaded and no register block runs.
@@ -25,14 +29,17 @@ module TheLocal
       return if files.empty?
 
       agents = files.map { |file| agent_from(spec[:name], file) }
-      registry.add_provider(Provider.new(gem_name: spec[:name], prefix: agents.first.prefix, scope: nil))
+      registry.add_provider(
+        Provider.new(gem_name: spec[:name], prefix: agents.first.prefix, scope: agents.first.scope)
+      )
       agents.each { |agent| registry.add(agent) }
     end
 
     def self.agent_from(gem_name, file)
       prefix, _, name = File.basename(file, ".md").rpartition("-")
       Agent.new(gem_name: gem_name, prefix: prefix, name: name,
-                description: nil, tools: nil, body: nil, knowledge: nil, source_path: file)
+                description: nil, tools: nil, body: nil, knowledge: nil, source_path: file,
+                scope: Guide.new(File.read(file)).scope)
     end
   end
 end

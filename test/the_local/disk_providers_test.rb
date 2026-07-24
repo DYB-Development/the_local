@@ -33,6 +33,19 @@ module TheLocal
       end
     end
 
+    def test_reads_the_providers_scope_from_its_committed_front_matter
+      Dir.mktmpdir do |dir|
+        agents_dir = File.join(dir, "the_local", "agents")
+        FileUtils.mkdir_p(agents_dir)
+        File.write(File.join(agents_dir, "foo-info.md"), "---\nname: foo-info\nscope: events — emitting them\n---\n")
+        registry = Registry.new
+
+        DiskProviders.load(registry: registry, specs: [{ name: "foo", path: dir }])
+
+        assert_equal "events — emitting them", registry.providers.first.scope
+      end
+    end
+
     def test_registers_a_providers_committed_agents_from_disk
       with_provider_gem("foo", ["foo-info.md"]) do |dir|
         registry = Registry.new
