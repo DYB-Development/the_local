@@ -24,5 +24,11 @@ module TheLocal
 
       assert_includes Format.problems(missing), "missing key: scope"
     end
+
+    def test_reports_a_missing_section
+      missing = COMPLETE.sub("## Interface\n", "")
+
+      assert_includes Format.problems(missing), "missing section: ## Interface"
+    end
   end
 end
