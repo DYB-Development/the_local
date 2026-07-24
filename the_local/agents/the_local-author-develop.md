@@ -30,6 +30,23 @@ describe *intent* and may be stale or wrong. Use a doc only to orient yourself t
 the code wins and the doc is wrong. You are re-deriving the truth from the code as
 it is now — never copying a claim you haven't checked.
 
+## Document the core, not the whole surface
+
+First find the gem's **core purpose** — the two to four things a user actually does
+with it. Your recipe covers *those*. Everything else the gem exposes is
+**background**: the plumbing that makes them work. A user implementing against the
+gem does not call it, so it stays out. If you are enumerating eight subsystems, you
+are dumping the source, not writing a recipe — cut back to the core tasks and show
+how to do them.
+
+The gem does not stand alone. Show where its inputs come from (often definitions
+shipped by *other* gems) and where its outputs go — the seam the implementer works
+across — but never those systems' internals.
+
+Keep it tight. A local is a page a person reads, not a reference manual. This is
+the *worker* — it shows how to do the core tasks, not every call the gem defines
+(that over-broad enumeration belongs nowhere). The `info` local orients; you build.
+
 ## How to author it
 
 1. **Find the gem name** — the basename of the single `*.gemspec` in the root.

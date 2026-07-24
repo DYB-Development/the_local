@@ -26,6 +26,28 @@ doc only to orient yourself to *where to look*; then confirm the fact in the sou
 before you write it. If a doc and the code disagree, the code wins and the doc is
 wrong. Never copy a claim from a document you haven't checked against the code.
 
+## Document the core, not the whole surface
+
+First find the gem's **core purpose** — the two to four things a user actually does
+with it. That is the local. Everything else the gem exposes is **background**: the
+plumbing that makes those few things work. A user implementing against the gem does
+not call it, so it stays out. If you are enumerating eight subsystems, you are
+dumping the source, not writing docs — cut back to the core.
+
+The gem does not stand alone. Say where it meets the **other systems** an
+implementer works across — where its inputs come from (often definitions shipped by
+*other* gems) and where its outputs go — but only the seam they touch, never those
+systems' internals.
+
+Keep it tight. A local is a page a person reads, not a reference manual. If yours
+runs to hundreds of lines, you have over-documented — the signal is drowning.
+
+This is the *explainer*: it orients a reader to what the gem is and when to reach
+for it, listing the core entry points **at a glance**. It does not reproduce every
+signature or a full recipe — that is `develop`'s job. If your `info` and `develop`
+locals read the same, you have written the interface twice; pull `info` back to
+orientation.
+
 ## How to author it
 
 1. **Find the gem name** — the basename of the single `*.gemspec` in the root.

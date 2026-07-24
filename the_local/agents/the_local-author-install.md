@@ -27,6 +27,17 @@ stale. Use a doc only to find *where* the real setup lives; confirm each command
 and file against the source before you write it. If a doc and the code disagree,
 the code wins.
 
+## Setup only — not how to build with the gem
+
+Your local is the **ordered steps to get the gem installed and configured** in a
+host, and nothing else. You do not explain the gem's API, its concepts, or how to
+build with it — that is `info` and `develop`. Give the commands in order, the host
+files each creates or edits, and where they land. If the gem interacts with **other
+systems** at setup time (a host mount, a companion gem it needs, config another
+system reads), name that seam — but only what the installer must do about it.
+
+Keep it tight: the steps a person runs, top to bottom, not a narrative.
+
 ## How to author it
 
 1. **Find the gem name** — the basename of the single `*.gemspec` in the root.
