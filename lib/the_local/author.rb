@@ -9,7 +9,16 @@ module TheLocal
     FACETS = %w[info install develop].freeze
     CREATORS = File.expand_path("creators", __dir__)
 
-    def initialize(gem_root:, runner:)
+    # Runs one creator prompt as a fresh, cold Claude in the gem's directory, so
+    # it authors from the code and not from any warm session's memory. The tools
+    # match what a creator needs: read the gem, write one local.
+    ClaudeRunner = lambda do |prompt, dir|
+      system("claude", "-p", prompt, "--allowedTools", "Read,Grep,Write",
+             "--permission-mode", "acceptEdits", chdir: dir) ||
+        raise(Error, "the_local: the creator run failed in #{dir} (is the `claude` CLI installed?)")
+    end
+
+    def initialize(gem_root:, runner: ClaudeRunner)
       @gem_root = gem_root
       @runner = runner
     end
