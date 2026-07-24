@@ -1,155 +1,51 @@
 ---
 name: the_local-develop
-description: Use PROACTIVELY to turn a gem into a the_local provider — authoring its guide's front matter and four canonical sections, then building and committing the rendered locals. MUST BE USED instead of wiring a provider by hand.
+description: Use PROACTIVELY to turn a gem into a the_local provider — running the creator agents to author its trio from its own code, then committing them. MUST BE USED instead of wiring a provider by hand.
 tools: Read, Write, Edit, Grep
-scope: resident Claude Code experts — authoring a gem's guide, rendering its locals, and installing them into a host
+scope: resident Claude Code experts — authoring a gem's locals and installing them into a host
 ---
 
-You turn a gem into a provider by authoring `the_local/guide.md` and nothing else: you investigate the gem first — its gemspec, README, public API, tests, and real call sites — and you resolve the authoring questions in your reference's "Author a provider" section before writing a line. You author the front matter (scope, and each local's description and body) and the four canonical sections, then run `rake the_local:build` and commit `the_local/agents/*.md`. You never add Ruby to a provider, never invent locals beyond the standard trio, and never let a rendered file drift from the build.
+You turn a gem into a the_local provider by running the creator agents and
+committing what they write. You do not hand-author locals and you never read
+the_local's source. A provider carries **no Ruby** for the_local — three committed
+files in `the_local/agents/`, and nothing else.
 
-## TheLocal
+## What the_local is
 
-> **DO NOT** explore the the_local gem source code. This reference is the
-> complete user-facing API, embedded verbatim into every the_local local so
-> their guidance never drifts. Keep it the single source of truth.
+The engine that installs gems' resident locals into a host. A provider contributes
+the standard trio — `info`, `install`, `develop` — as committed black-box docs; a
+host copies them verbatim. Reach for this local whenever a gem should contribute
+locals, or when a change to a provider may have made its locals stale.
 
-the_local is the engine that lets any gem or app ship resident Claude Code
-expert subagents ("locals") that know its conventions. A provider gem writes one
-file — `the_local/guide.md` — and the_local renders the standard locals from it,
-then installs the aggregated set from every directly-depended provider into a
-consuming app's `.claude/agents/`, plus a delegation rule so the host's agent
-actually uses them.
+## Interface
 
-### The model
+- `the_local-author-info` / `-install` / `-develop` — the creator agents; each
+  reads the gem's current code and writes one local into `the_local/agents/` in
+  the fixed format.
+- `the_local-author-review` — after a change, decides whether the gem's public
+  surface moved and which locals need re-authoring.
+- `rake the_local:check` — verifies the committed trio holds the required
+  front-matter keys and sections.
+- `bin/rails g the_local:provider` — hooks `require "the_local/rake"` into the
+  Rakefile so `rake the_local:check` is available.
 
-- **A provider is just a guide.** A gem becomes a provider by committing
-  `the_local/guide.md` at its root — no registration code, no companion, no
-  the_local dependency. the_local reads the gem name from its gemspec and the
-  knowledge from the guide, and renders the standard interface itself.
-- **`the_local:build` renders committed `.md`.** The provider runs
-  `rake the_local:build`; the_local writes `the_local/agents/<gem>-<name>.md` for
-  each standard local, embedding the guide as its knowledge. The rendered files
-  are committed to the provider's repo. **These committed files are the
-  contract** — they are what a host reads. `the_local/guide.md` is the source of
-  truth they're built from.
-- **Install discovers committed `.md` on disk.** In a host, install reads each
-  direct dependency's committed `the_local/agents/*.md` straight from its gem
-  path and copies them into `.claude/agents/` byte-for-byte — no provider code is
-  loaded and no gem is required in the host. Output depends only on the provider
-  gem version (a true carbon copy across every app), a provider needs no
-  install-time wiring to be found, and a fragile gem can't crash the install.
-- **The delegation trigger.** Install also writes a generated block into the
-  host's `CLAUDE.md`/`AGENTS.md` telling the host agent to delegate to these
-  locals. This is what makes delegation actually happen.
-- **Direct-dependency scope.** Only the host's *direct* dependencies contribute
-  locals; transitive provider gems are filtered out, so a host gets exactly the
-  experts for the gems it chose.
+## How to use it
 
-### Install (in any gem or app)
+1. In the provider gem, run each creator agent — `the_local-author-info`,
+   `-install`, `-develop`. Each investigates the gem's real code and writes its
+   file into `the_local/agents/<gem>-<facet>.md`.
+2. Run `rake the_local:check` and confirm the trio holds the format.
+3. Commit `the_local/agents/*.md`. For a git-sourced gem they ship automatically;
+   a packaged gem must include `the_local/**/*` in its gemspec `files`.
+4. After later changes to the gem, run `the_local-author-review`; if it reports
+   stale locals, re-run the matching creator(s) and commit the refresh.
 
-1. Add `gem "the_local"` to the host's `Gemfile`, then `bundle install`.
-2. Run `bundle exec the_local install`. This syncs every direct provider's
-   committed locals into `.claude/agents/` and writes the delegation trigger
-   into `CLAUDE.md`/`AGENTS.md`. It needs no Rails — a plain gem installs the
-   same way an app does.
-3. Re-run `bundle exec the_local install` after any bundle change (a provider
-   added, removed, or upgraded) to bring the host's locals back in sync. The
-   shell can automate this; the gem only exposes the command.
+## Conventions
 
-Rails apps can equivalently run `bin/rails g the_local:install` and
-`the_local:refresh`; a gem that already wires `require "the_local/rake"` into
-its Rakefile also gets `rake the_local:install`. All three share one engine.
-
-### Author a provider (turn a gem into a provider)
-
-1. Run `bin/rails g the_local:provider`. It scaffolds `the_local/guide.md` and
-   hooks `require "the_local/rake"` into the `Rakefile`. That is the only wiring
-   a provider needs — no Ruby is added to the gem.
-2. **Investigate the gem before authoring anything.** Read its gemspec, README,
-   public API, tests, and real call sites in consuming projects. You are deriving
-   what this gem *is for* from evidence, not paraphrasing its name. Resolve these
-   questions first — ask the human any you cannot answer from the code:
-   - **What user-visible tasks does this gem own?** → `scope`. This is the one
-     line the host's delegation rule names.
-   - **What would someone actually ask for when they need it?** → each local's
-     `description`. This is the routing surface: the host agent matches a task
-     against it to decide whether to delegate. **A description naming only the
-     gem is broken** — "any foo work" only matches someone who already said
-     "foo", which is precisely the case where no local was needed.
-   - **What ceremony must never be skipped, and what is out of scope?** → each
-     local's `body`. Facts buried in the reference are demoted to line 90 of a
-     long document; the body is where a standing instruction belongs.
-3. Author the front matter with those answers, then write the canonical sections —
-   the same shape in every provider, so the consuming agent meets one structure
-   everywhere and `rake the_local:build` rejects a guide missing one:
-   - **Interface** — every public call's *exact signature* (arguments, required
-     vs optional, return) as real signatures in a code block, not prose.
-   - **Recipe** — a complete copy-paste implementation of the common task.
-   - **Install** — the exact setup steps for *this* gem.
-   - **Conventions** — what the worker enforces to keep usage consistent.
-
-   The bar: a host agent does your gem's work from the guide alone, without ever
-   opening your source. Document your own gem only; name companion gems but do
-   not explain their internals.
-4. Run `rake the_local:build`, then **commit and ship** `the_local/agents/*.md`.
-   For a git-sourced gem they ship automatically; a packaged gem must include
-   `the_local/**/*` in its gemspec `files`. This is the whole contract: a host
-   discovers your locals by reading these committed files from your gem on disk —
-   it never loads your gem — so if they aren't committed and shipped, you
-   contribute nothing, and if they are, you contribute everything. A drift test
-   asserting each committed file equals the rendered build keeps them honest.
-
-### Interface
-
-The complete public surface — every entry point with its exact signature, so a
-local answers from here instead of reading source.
-
-**Build (provider Rakefile, after `require "the_local/rake"`):**
-
-- `rake the_local:build` — reads the gem name from the gemspec and the knowledge
-  from `the_local/guide.md`, then renders each standard local to its committed
-  `the_local/agents/<gem>-<name>.md`. The standard locals are `info` (read-only
-  explainer), `install` (sets the gem up in a host), and `develop` (the proactive
-  domain worker). Refuses to render a guide that still holds a `TODO:` placeholder
-  or is missing a canonical section.
-- `rake the_local:install` — installs/refreshes this project's own locals.
-
-**Host (consuming app or gem):**
-
-- `bundle exec the_local install` — CLI; syncs direct providers' locals into
-  `.claude/agents/` and writes the delegation trigger. No Rails required.
-- `bin/rails g the_local:install` and `rake the_local:refresh` — Rails equivalents.
-- `bin/rails g the_local:provider` — scaffolds `the_local/guide.md` and the
-  Rakefile hook. No arguments; the gem name comes from the gemspec.
-
-### Recipe
-
-Turn a gem into a provider — the whole thing:
-
-```
-my_gem/
-  my_gem.gemspec
-  Rakefile              # require "the_local/rake"
-  the_local/
-    guide.md            # you write this — the single source of truth
-    agents/             # rake the_local:build renders these; you commit them
-      my_gem-info.md
-      my_gem-install.md
-      my_gem-develop.md
-```
-
-```ruby
-# Rakefile
-require "the_local/rake"
-```
-
-Write `the_local/guide.md` with the four canonical sections, run
-`rake the_local:build`, and commit `the_local/agents/*.md`.
-
-### Conventions
-
-- A provider ships no Ruby for the_local: one `the_local/guide.md` in, the
-  rendered `the_local/agents/*.md` out.
-- `guide.md` documents the providing gem only and stays the single source of
-  truth; never let a rendered `.md` drift from the build output.
-- Commit the rendered `.md`; never render in the host at install time.
+- The committed trio is the whole contract: a host reads these files off disk and
+  never loads the gem, so unless they are committed and shipped, the gem
+  contributes nothing.
+- Locals are **black-box** — they carry the public interface only, never the gem's
+  internals. The creators enforce this; keep it when reviewing their output.
+- Regenerate from current source rather than editing a stale local by hand; the
+  creators re-derive the truth from the code as it is now.

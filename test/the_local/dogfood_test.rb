@@ -1,21 +1,18 @@
 # frozen_string_literal: true
 
 require "test_helper"
-require "the_local/provider_build"
+require "the_local/provider_check"
 
 module TheLocal
   # the_local is its own first provider: its committed the_local/agents/*.md must
-  # equal what ProviderBuild renders from the_local/guide.md, or the gem ships
-  # locals that lie about its own interface.
+  # hold the fixed format, or the gem ships a trio that lies about its own shape.
   class DogfoodTest < Minitest::Test
     def gem_root
       File.expand_path("../..", __dir__)
     end
 
-    def test_committed_agents_match_the_rendered_build
-      ProviderBuild.new(gem_root).agents.each do |agent|
-        assert_equal agent.to_markdown, File.read(agent.source_path)
-      end
+    def test_committed_trio_holds_the_format
+      assert_empty ProviderCheck.new(gem_root).problems
     end
   end
 end
