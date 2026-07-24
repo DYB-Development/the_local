@@ -20,6 +20,14 @@ module TheLocal
       front_matter["scope"]
     end
 
+    def local(name)
+      locals.fetch(name, {})
+    end
+
+    def locals
+      front_matter["locals"] || {}
+    end
+
     private
 
     def front_matter

@@ -16,5 +16,13 @@ module TheLocal
 
       assert_equal "events — defining and emitting them", guide.scope
     end
+
+    def test_reads_an_authored_locals_description
+      guide = Guide.new(
+        "---\nlocals:\n  develop:\n    description: Use PROACTIVELY when defining events.\n---\n\n## Demo\n"
+      )
+
+      assert_equal "Use PROACTIVELY when defining events.", guide.local("develop")["description"]
+    end
   end
 end
