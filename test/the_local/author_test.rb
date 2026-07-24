@@ -13,5 +13,14 @@ module TheLocal
 
       assert_equal %w[info install develop], seen
     end
+
+    def test_runs_each_creator_in_the_provider_gem
+      dirs = []
+      runner = ->(_prompt, dir) { dirs << dir }
+
+      Author.new(gem_root: "/gem", runner: runner).call
+
+      assert_equal ["/gem"] * 3, dirs
+    end
   end
 end
