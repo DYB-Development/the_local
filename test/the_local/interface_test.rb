@@ -20,5 +20,13 @@ module TheLocal
 
       assert_equal "Use PROACTIVELY when defining events.", agents.find { |agent| agent.name == "develop" }.description
     end
+
+    def test_carries_the_authored_scope_onto_every_local
+      guide = Guide.new("---\nscope: events — defining and emitting them\n---\n\n## Demo\n")
+
+      agents = Interface.agents(gem_name: "demo", guide: guide, agents_dir: "/agents")
+
+      assert_equal ["events — defining and emitting them"] * 3, agents.map(&:scope)
+    end
   end
 end

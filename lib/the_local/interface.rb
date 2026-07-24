@@ -50,7 +50,7 @@ module TheLocal
         description: authored["description"] || format(facet.description, gem: gem_name),
         tools: facet.tools,
         body: authored["body"] || format(facet.body, gem: gem_name),
-        knowledge: guide.prose,
+        knowledge: guide.prose, scope: guide.scope,
         source_path: File.join(agents_dir, "#{gem_name}-#{facet.name}.md")
       )
     end
