@@ -24,10 +24,14 @@ change, point at the repo instead:
 gem "the_local", github: "DYB-Development/the_local"
 ```
 
-The gem's core is Rails-free, but the primary documented workflow uses the
-`bin/rails g the_local:install` / `the_local:provider` generators, so those steps
-assume a Rails host. The `bundle exec the_local install` CLI and the
-`the_local:build`/`the_local:refresh` rake tasks work without Rails.
+The gem's core is Rails-free. `bundle exec the_local install` and the
+`the_local:check`/`the_local:refresh` rake tasks work without Rails; a Rails host
+can equivalently use the `bin/rails g the_local:install` / `the_local:provider`
+generators.
+
+Once installed, the locals themselves know the rest — the `the_local-info`,
+`the_local-install`, and `the_local-develop` agents explain, set up, and drive
+the_local, so this README stays short on purpose.
 
 ## Usage
 
@@ -37,18 +41,18 @@ There are two sides.
 app's own) into `.claude/agents/`, and write the delegation trigger:
 
 ```bash
-bin/rails g the_local:install
+bundle exec the_local install
 ```
 
-Install **copies each provider's committed `.md` verbatim** — the rendering
-happens in the provider gem at build time, not in the host — so every app on the
-same gem version gets a byte-identical local. Re-run `the_local:refresh` (rake)
-after a `bundle install`/`update` to re-sync.
+Install **copies each provider's committed `.md` verbatim** — no provider code is
+loaded — so every app on the same gem version gets a byte-identical local. Re-run
+it (or `rake the_local:refresh`) after a `bundle install`/`update` to re-sync.
 
-**Provider gem** — contribute the locals an app installs. A gem writes one file,
-`the_local/guide.md`, and ships no Ruby; `the_local` renders the common command
-interface (`info` / `install` / `develop`) from it into committed `.md` with
-`rake the_local:build`. Scaffold it with:
+**Provider gem** — contribute the locals an app installs. A gem commits three
+files, `the_local/agents/<gem>-{info,install,develop}.md`, and ships no Ruby. They
+are authored by the **creator agents** (`the_local-author-info` / `-install` /
+`-develop`), which read the gem's current code and write the locals from it — so
+the docs never drift from the source. Wire the tooling with:
 
 ```bash
 bin/rails g the_local:provider

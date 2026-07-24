@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "agent"
-require_relative "guide"
+require_relative "front_matter"
 require_relative "registry"
 
 module TheLocal
@@ -29,8 +29,9 @@ module TheLocal
       return if files.empty?
 
       agents = files.map { |file| agent_from(spec[:name], file) }
+      representative = agents.find(&:scope) || agents.first
       registry.add_provider(
-        Provider.new(gem_name: spec[:name], prefix: agents.first.prefix, scope: agents.first.scope)
+        Provider.new(gem_name: spec[:name], prefix: representative.prefix, scope: representative.scope)
       )
       agents.each { |agent| registry.add(agent) }
     end
@@ -39,7 +40,7 @@ module TheLocal
       prefix, _, name = File.basename(file, ".md").rpartition("-")
       Agent.new(gem_name: gem_name, prefix: prefix, name: name,
                 description: nil, tools: nil, body: nil, knowledge: nil, source_path: file,
-                scope: Guide.new(File.read(file)).scope)
+                scope: FrontMatter.new(File.read(file)).scope)
     end
   end
 end

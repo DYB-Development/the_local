@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
-require "the_local/builder"
+require "fileutils"
 require "tmpdir"
 
 module TheLocal
@@ -21,7 +21,10 @@ module TheLocal
 
     def build_keystone(agents_dir:, names: %w[scaffold])
       names.each { |name| add_agent(name, agents_dir: agents_dir) }
-      Builder.new(registry: TheLocal.registry).call
+      TheLocal.registry.agents.select(&:source_path).each do |agent|
+        FileUtils.mkdir_p(File.dirname(agent.source_path))
+        File.write(agent.source_path, agent.to_markdown)
+      end
     end
 
     def install_into(dir, allowed_gems: ["keystone_ui"])

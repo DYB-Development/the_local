@@ -46,6 +46,20 @@ module TheLocal
       end
     end
 
+    def test_takes_scope_from_the_trio_not_a_scopeless_sibling
+      Dir.mktmpdir do |dir|
+        agents_dir = File.join(dir, "the_local", "agents")
+        FileUtils.mkdir_p(agents_dir)
+        File.write(File.join(agents_dir, "foo-author-info.md"), "---\nname: foo-author-info\n---\n")
+        File.write(File.join(agents_dir, "foo-info.md"), "---\nname: foo-info\nscope: emitting events\n---\n")
+        registry = Registry.new
+
+        DiskProviders.load(registry: registry, specs: [{ name: "foo", path: dir }])
+
+        assert_equal "emitting events", registry.providers.first.scope
+      end
+    end
+
     def test_registers_a_providers_committed_agents_from_disk
       with_provider_gem("foo", ["foo-info.md"]) do |dir|
         registry = Registry.new

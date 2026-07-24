@@ -1,16 +1,21 @@
 ## [Unreleased]
 
-- A provider gem now ships **no Ruby**. Instead of a `TheLocal.register` block,
-  a `Reference` loader, and a companion, a provider writes one file —
-  `the_local/guide.md` at the gem root — and `the_local` renders the standard
-  `info` / `install` / `develop` locals from it. The gem name comes from the
-  gemspec. `TheLocal.register` and `Collector` are removed.
-- The committed locals move out of the require path to `the_local/agents/` at the
-  gem root. Install still discovers a provider's older `lib/**/the_local/agents/`
-  layout as a fallback until it is rebuilt.
-- `the_local:provider` scaffolds only `the_local/guide.md` and the Rakefile hook;
-  it no longer writes a companion, a reference loader, an entrypoint `require`, or
-  takes a gem-name argument. `the_local` is its own first guide-based provider.
+- A provider gem ships **no Ruby and no guide**. Its committed
+  `the_local/agents/<gem>-{info,install,develop}.md` are authored by the
+  **creator agents** — `the_local-author-info` / `-install` / `-develop` — which
+  read the gem's current code and write each local from it. `the_local-author-review`
+  flags when a change moved the gem's public surface and made the locals stale.
+- Locals are **black-box docs**: they carry the gem's public interface (how, when,
+  where, what commands) and never reference its internals, and their facts come
+  from the code, not from a README or guide that could be stale.
+- The deterministic renderer is removed — no `the_local/guide.md`, no
+  `rake the_local:build`, no `Interface`/`ProviderBuild`/`Builder`.
+  `rake the_local:check` validates that a committed trio holds the fixed format
+  (front-matter keys + sections). Install is unchanged: it copies committed files
+  off disk verbatim.
+- `the_local:provider` wires the dependency and the Rakefile hook only; it no
+  longer scaffolds a guide. `the_local` is its own first provider, its trio
+  authored to the black-box format.
 
 ## [0.3.0] - 2026-07-01
 

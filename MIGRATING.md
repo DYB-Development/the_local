@@ -1,5 +1,13 @@
 # Migrating a provider gem to the guide-based model
 
+> **Superseded.** the_local no longer uses a guide. A provider now ships **no
+> guide and no Ruby** — its committed `the_local/agents/*.md` are authored by the
+> `the_local-author-*` creator agents, which read the gem's current code. To make
+> a gem a provider, or to refresh a stale one, follow **[PROVIDERS.md](PROVIDERS.md)**,
+> not this runbook. This file is kept only for gems still on the old
+> `TheLocal.register` layout that need to reach a committed trio first; once they
+> have one, re-author it with the creators.
+
 This is a **deterministic runbook** for converting one provider gem from the old
 `TheLocal.register` layout to the new guide-based one (the_local ≥ the version on
 `main` after PR #72). Follow it top to bottom, **one gem at a time**. Every step

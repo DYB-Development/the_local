@@ -4,10 +4,10 @@ require "rails/generators"
 
 module TheLocal
   module Generators
-    # `bin/rails g the_local:provider` — scaffolds the provider side of the_local
-    # into a gem: a single the_local/guide.md, plus the Rakefile hook that exposes
-    # `rake the_local:build`. The gem name comes from the gemspec, and the_local
-    # renders the locals from the guide, so the gem carries no Ruby of its own.
+    # `bin/rails g the_local:provider` — wires the provider side of the_local into
+    # a gem: adds the dependency and the Rakefile hook that exposes
+    # `rake the_local:check`. The gem writes no guide and no Ruby of its own; the
+    # committed locals are authored by the the_local-author-* creator agents.
     #
     # The companion app side is `the_local:install`; this is its mirror for the
     # gems that *contribute* locals. See PROVIDERS.md.
@@ -17,14 +17,15 @@ module TheLocal
       GEMFILE_LINE = %(gem "the_local")
       RAKEFILE_REQUIRE = %(require "the_local/rake")
 
-      desc "Scaffold the_local provider wiring (a guide) into this gem"
+      desc "Wire the_local provider tooling into this gem"
 
       def relocate_to_gem_root
         self.destination_root = gem_root
       end
 
-      def create_guide
-        template "guide.md.tt", "the_local/guide.md"
+      def announce_next_step
+        say "Run the the_local-author-info/install/develop agents to author " \
+            "this gem's locals into the_local/agents/, then commit them."
       end
 
       def add_to_gemfile
@@ -38,12 +39,12 @@ module TheLocal
                        "\n# the_local renders #{gem_name}'s committed locals at build time.\n#{GEMFILE_LINE}\n"
       end
 
-      def hook_build_task_into_rakefile
+      def hook_check_task_into_rakefile
         return unless File.exist?(File.join(destination_root, "Rakefile"))
         return if File.read(File.join(destination_root, "Rakefile")).include?(RAKEFILE_REQUIRE)
 
         append_to_file "Rakefile",
-                       "\n# Render #{gem_name}'s committed the_local agent files: `rake the_local:build`.\n" \
+                       "\n# Check #{gem_name}'s committed the_local locals: `rake the_local:check`.\n" \
                        "#{RAKEFILE_REQUIRE}\n"
       end
 
