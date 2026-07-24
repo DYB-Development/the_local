@@ -27,6 +27,18 @@ module TheLocal
       assert rake_app.lookup("the_local:install")
     end
 
+    def test_check_task_rejects_a_trio_that_breaks_the_format
+      Dir.mktmpdir do |root|
+        agents = File.join(root, "the_local", "agents")
+        FileUtils.mkdir_p(agents)
+        File.write(File.join(agents, "demo-info.md"), "---\nname: demo-info\n---\n")
+
+        Dir.chdir(root) do
+          assert_raises(TheLocal::Error) { rake_app["the_local:check"].invoke }
+        end
+      end
+    end
+
     private
 
     def rake_app
