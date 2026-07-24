@@ -11,8 +11,8 @@ module TheLocal
   # +source_path+ is the absolute path to the provider's committed, pre-rendered
   # .md file; the host installer copies it verbatim. It stays nil until a
   # provider supplies an agents_dir, so existing providers keep working.
-  Agent = Data.define(:gem_name, :prefix, :name, :description, :tools, :body, :knowledge, :source_path) do
-    def initialize(source_path: nil, **args)
+  Agent = Data.define(:gem_name, :prefix, :name, :description, :tools, :body, :knowledge, :source_path, :scope) do
+    def initialize(source_path: nil, scope: nil, **args)
       super
     end
 
@@ -30,6 +30,7 @@ module TheLocal
         name: #{qualified_name}
         description: #{description}
         tools: #{tools}
+        scope: #{scope}
         ---
 
         #{body}
