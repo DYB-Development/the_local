@@ -29,8 +29,9 @@ module TheLocal
       return if files.empty?
 
       agents = files.map { |file| agent_from(spec[:name], file) }
+      representative = agents.find(&:scope) || agents.first
       registry.add_provider(
-        Provider.new(gem_name: spec[:name], prefix: agents.first.prefix, scope: agents.first.scope)
+        Provider.new(gem_name: spec[:name], prefix: representative.prefix, scope: representative.scope)
       )
       agents.each { |agent| registry.add(agent) }
     end
