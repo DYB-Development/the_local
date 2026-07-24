@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "guide"
 require_relative "interface"
 require_relative "registry"
 require_relative "builder"
@@ -19,7 +20,7 @@ module TheLocal
     def agents
       Interface.agents(
         gem_name: gem_name,
-        knowledge: File.read(File.join(@gem_root, GUIDE)).chomp,
+        guide: Guide.new(File.read(File.join(@gem_root, GUIDE))),
         agents_dir: File.join(@gem_root, AGENTS_DIR)
       )
     end

@@ -1,3 +1,30 @@
+---
+# Investigate <%= gem_name %> before writing any of this — its gemspec, README,
+# public API, tests, and real call sites. Each value below is authored from what
+# you find; the renderer owns everything else (which locals exist, their tools,
+# and the file's structure).
+#
+# scope: the one line the host's CLAUDE.md delegation rule names. What
+# user-visible work does <%= gem_name %> own? Write the tasks, not the gem name.
+scope: TODO: <domain> — <the tasks this gem owns>
+locals:
+  info:
+    # description: what questions should route here? Name the real subjects.
+    description: "TODO: Use to learn what <%= gem_name %> offers — <its actual subjects>."
+    body: "TODO: what this local answers from, and that it changes nothing."
+  install:
+    description: "TODO: Use to add <%= gem_name %> to a project and set it up correctly."
+    # body: name the actual steps, and what it must NOT do (e.g. companion gems).
+    body: "TODO: the steps this local follows, and its explicit boundaries."
+  develop:
+    # description: THE routing surface. A description naming only the gem is
+    # broken — the host agent will never match a real task to it. Name the tasks
+    # a user would actually ask for.
+    description: "TODO: Use PROACTIVELY for <the real tasks> — <named explicitly>. MUST BE USED instead of <the thing people hand-roll>."
+    # body: the standing ceremony that must never be skipped, and what is out of scope.
+    body: "TODO: the conventions this local enforces every time."
+---
+
 ## <%= module_name %>
 
 > **DO NOT** explore the <%= gem_name %> gem source code. This reference is the

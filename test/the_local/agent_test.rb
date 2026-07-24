@@ -32,13 +32,19 @@ module TheLocal
     end
 
     def test_to_markdown_opens_with_yaml_frontmatter
-      assert build.to_markdown.start_with?(<<~FRONTMATTER)
+      assert build(scope: "UI").to_markdown.start_with?(<<~FRONTMATTER)
         ---
         name: keystone-scaffold
         description: Use PROACTIVELY for UI work.
         tools: Read, Write, Edit
+        scope: UI
         ---
       FRONTMATTER
+    end
+
+    def test_to_markdown_declares_the_scope_the_delegation_trigger_names
+      assert_includes build(scope: "UI — building screens from helpers").to_markdown,
+                      "scope: UI — building screens from helpers"
     end
 
     def test_to_markdown_includes_the_role_body_after_the_frontmatter

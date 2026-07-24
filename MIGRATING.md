@@ -11,6 +11,32 @@ Do not batch gems. Do not skip verification. Do not invent steps.
 
 ---
 
+## Two entry points
+
+**Already on the guide model** (the gem has `the_local/guide.md` and no
+`lib/**/the_local.rb`)? Its locals are rendering from the generic template and
+the host agent is not routing to them. Branch first, update the engine, then skip
+to **Step 6 — Author the locals' metadata** and run Steps 7-9:
+
+```bash
+git checkout main && git pull --ff-only
+git checkout -b chore/author-the-locals
+bundle update the_local
+bundle exec ruby -e 'require "the_local/guide"; puts "ok"'   # => ok
+```
+
+If that prints `LoadError` instead of `ok`, the bundled the_local predates
+authored metadata — **STOP** and point the Gemfile at the_local `main`. Step 6's
+VERIFY needs it.
+
+**Still on the register model** (the gem has `lib/<path>/the_local.rb`)? Start at
+the Preconditions and run the whole runbook top to bottom.
+
+Either way you finish at the same place: an authored guide, a rebuilt trio, a
+green drift test.
+
+---
+
 ## What the migration changes
 
 | Old (register-based) | New (guide-based) |
@@ -18,6 +44,7 @@ Do not batch gems. Do not skip verification. Do not invent steps.
 | `lib/<path>/the_local.rb` — `Companion.register!` block | *(deleted)* |
 | `lib/<path>/reference.rb` — `Reference` loader | *(deleted)* |
 | `lib/<path>/reference/guide.md` — the knowledge | **moved to** `the_local/guide.md` (gem root) |
+| `c.agent description:`/`body:`/`scope:` — the authored metadata | **re-authored as** front matter in `the_local/guide.md` (Step 6) |
 | `lib/<path>/the_local/agents/*.md` — committed locals | **rebuilt at** `the_local/agents/*.md` (gem root) |
 | entrypoint `require`/`require_relative "<path>/the_local"` | *(deleted)* |
 | Rakefile `require "<path>/the_local"` before `require "the_local/rake"` | *(deleted; keep the `the_local/rake` line)* |
@@ -205,7 +232,7 @@ spec.files = Dir["lib/**/*", "app/**/*", "the_local/**/*"]
 ```
 
 **VERIFY** the gemspec now includes the guide (once it exists on disk it must be
-selectable). After Step 6 builds the agents, this is re-checked; for now just
+selectable). After Step 7 builds the agents, this is re-checked; for now just
 confirm the edit is syntactically valid:
 
 ```bash
@@ -216,7 +243,97 @@ Expect `gemspec loads`. If it errors, **STOP** and fix the syntax.
 
 ---
 
-## Step 6 — Build the committed locals
+## Step 6 — Author the locals' metadata
+
+The register block carried each local's `description` and `body` plus the
+provider's `scope`. **Moving the guide does not carry them over.** Without this
+step every local renders from a generic template — `"Use PROACTIVELY for any
+<gem> work"` — which the host agent only matches if the user already named the
+gem, i.e. exactly when no local was needed. The local never fires and the host
+answers generically. `rake the_local:build` refuses a guide whose scope is
+unauthored, so this step is not optional.
+
+**Recover the old wording first.** If this gem had a register block, git history
+holds text that was already authored against the real gem — recover and improve
+it rather than inventing new wording:
+
+```bash
+git log --all --oneline -- "$LIBPATH/the_local.rb" | tail -1   # the commit that added it
+git show <that-commit>:"$LIBPATH/the_local.rb"                 # scope, descriptions, bodies
+```
+
+For a gem that never had one, investigate before writing: its gemspec, README,
+public API, tests, and real call sites in consuming projects.
+
+Add front matter at the very top of `the_local/guide.md`, above the `## Title`
+line:
+
+```yaml
+---
+scope: <domain> — <the tasks this gem owns>
+locals:
+  info:
+    description: >-
+      Use to learn what <gem> offers — <its actual subjects>.
+    body: >-
+      What this local answers from, and that it changes nothing.
+  install:
+    description: >-
+      Use to add <gem> to a project and set it up correctly.
+    body: >-
+      The steps it follows, and what it must NOT do (e.g. companion gems).
+  develop:
+    description: >-
+      Use PROACTIVELY for <the real tasks, named> — MUST BE USED instead of
+      <the thing people hand-roll>.
+    body: >-
+      The ceremony that must never be skipped, and what is out of scope.
+---
+```
+
+Each field answers one question:
+
+| Field | Question | Why it matters |
+|---|---|---|
+| `scope` | What user-visible tasks does this gem own? | The one line the host's `CLAUDE.md` delegation rule names. |
+| `description` | What would someone actually ask for? | **The routing surface.** The host agent matches a task against it to decide whether to delegate. |
+| `body` | What ceremony must never be skipped? What is out of scope? | A standing instruction. Facts buried at line 90 of the reference are not instructions. |
+
+You author only these. The renderer owns which locals exist, their `tools`, the
+front-matter keys and their order, and the file's structure — do not add a fourth
+local, do not set `tools`, do not invent keys.
+
+**GATE — is the `develop` description actually routable?** Read it and answer:
+*would this match a request that never says the gem's name?*
+
+- `"Use PROACTIVELY for any event_engine work"` → **broken.** Names only the gem.
+- `"Use PROACTIVELY for any EventEngine work — defining events, choosing
+  process_type, emitting, and keeping the committed schema in sync"` → routable.
+  Names the tasks.
+
+If yours reads like the first, rewrite it before continuing. **This is the whole
+point of the step**; a guide that passes the build gate but fails this question
+ships a local nobody reaches.
+
+**VERIFY** the front matter parses and is complete:
+
+```bash
+bundle exec ruby -r the_local/guide -e '
+  g = TheLocal::Guide.new(File.read("the_local/guide.md"))
+  abort "UNAUTHORED SCOPE — STOP" if g.scope.to_s.strip.empty?
+  %w[info install develop].each do |n|
+    abort "#{n}: no description — STOP" if g.local(n)["description"].to_s.strip.empty?
+  end
+  abort "TODO markers remain — STOP" if g.scope.include?("TODO")
+  puts "authored"
+'
+```
+
+Expect `authored`. Anything else — fix it before Step 7.
+
+---
+
+## Step 7 — Build the committed locals
 
 ```bash
 bundle exec rake the_local:build
@@ -245,7 +362,7 @@ Any output here means the build is non-deterministic — **STOP** and report.
 
 ---
 
-## Step 7 — Add a drift test
+## Step 8 — Add a drift test
 
 Create a test that fails if a future edit to the guide isn't rebuilt. Adapt the
 path and test framework to the gem (Minitest shown; the gem root is the dir with
@@ -278,13 +395,13 @@ bundle exec rake test        # or: bundle exec rspec
 ```
 
 Expect **0 failures, 0 errors**. If the drift test fails, the committed agents
-don't match the build — re-run Step 6. If other tests fail because they
+don't match the build — re-run Step 7. If other tests fail because they
 referenced the deleted companion/reference, delete or rewrite those assertions
 (they tested removed code).
 
 ---
 
-## Step 8 — Lint, review, commit, PR
+## Step 9 — Lint, review, commit, PR
 
 ```bash
 bundle exec rubocop            # if the gem uses it — expect clean
@@ -320,12 +437,21 @@ In the PR body, state plainly:
 Verified against the repos on disk. Use this to sanity-check what each gem's run
 should look like — but still run every VERIFY gate; do not skip them.
 
+**Check which entry point each gem needs before starting it** — a gem migrated
+before the authoring step existed has an unauthored guide and needs Step 6
+onward, not the whole runbook:
+
+```bash
+test -f the_local/guide.md && ! ls lib/**/the_local.rb >/dev/null 2>&1 \
+  && echo "already migrated — start at Step 6" || echo "register model — start at Preconditions"
+```
+
 | Gem | lib `<path>` | Worker | gemspec `files` | gemspec edit? | Old comp/ref tests | Notes |
 |---|---|---|---|---|---|---|
 | `citizen` | `citizen` | develop | `Dir.chdir { Dir["{app,config,db,lib}/**/*", …] }` | **yes** — add `"the_local/**/*"` | none | clean |
 | `cs133` | `cs133` | develop | `git ls-files` | **no** | none | clean |
 | `dash_kit` | `dash_kit` | develop | `Dir.chdir { Dir["{app,config,db,lib}/**/*", …] }` | **yes** | none | clean |
-| `event_engine` | `event_engine` | develop | `Dir.chdir { Dir["{app,config,db,lib}/**/*", …] }` | **yes** | **companion_test + reference_test** — delete both | clean |
+| `event_engine` | `event_engine` | develop | `Dir.chdir { Dir["{app,config,db,lib}/**/*", …] }` | **yes** | **companion_test + reference_test** — delete both | **already migrated (PR #238) with an unauthored guide — start at Step 6.** Its old register block holds the authored text to recover. |
 | `event_engine-subscribers` | `event_engine/subscribers` | **operate** | `Dir.chdir { Dir["{app,config,db,lib}/**/*", …] }` | **yes** | none | **guide is all `TODO:` — unfinished scaffold. Step 1 GATE will STOP you: finish the guide first (authoring), or skip this gem.** |
 | `keystone_ui` | `keystone_ui` | develop | `Dir["lib/**/*", "app/**/*"]` | **yes** | **companion_test + reference_test** — delete both | clean |
 
@@ -337,7 +463,8 @@ Stop and get help the moment any of these is true:
 
 - A VERIFY gate's output doesn't match its stated expectation.
 - The guide has `TODO:` markers or fewer than 4 canonical sections.
-- `rake the_local:build` reports `incomplete guide(s)`.
+- `rake the_local:build` reports `incomplete guide(s)` or `unauthored scope`.
+- A `develop` description names only the gem ("any `<gem>` work") — it will not route.
 - A second build produces a diff (non-idempotent).
 - The final `git diff --stat` shows files outside the expected set.
 - The gem's test suite has failures you can't trace to deleted companion/reference code.

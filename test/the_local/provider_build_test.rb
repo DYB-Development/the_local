@@ -7,7 +7,8 @@ require "tmpdir"
 
 module TheLocal
   class ProviderBuildTest < Minitest::Test
-    COMPLETE_GUIDE = "### Interface\n`x`\n### Recipe\nr\n### Install\ns\n### Conventions\nc"
+    COMPLETE_GUIDE = "---\nscope: demos — building them\n---\n\n" \
+                     "### Interface\n`x`\n### Recipe\nr\n### Install\ns\n### Conventions\nc"
 
     def with_gem_root(name)
       Dir.mktmpdir do |root|
