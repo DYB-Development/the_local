@@ -38,16 +38,19 @@ module TheLocal
       )
     ].freeze
 
-    def self.agents(gem_name:, knowledge:, agents_dir:)
-      FACETS.map { |facet| agent_for(facet, gem_name, knowledge, agents_dir) }
+    def self.agents(gem_name:, guide:, agents_dir:)
+      FACETS.map { |facet| agent_for(facet, gem_name, guide, agents_dir) }
     end
 
-    def self.agent_for(facet, gem_name, knowledge, agents_dir)
+    def self.agent_for(facet, gem_name, guide, agents_dir)
+      authored = guide.local(facet.name)
+
       Agent.new(
         gem_name: gem_name, prefix: gem_name, name: facet.name,
-        description: format(facet.description, gem: gem_name),
-        tools: facet.tools, body: format(facet.body, gem: gem_name),
-        knowledge: knowledge,
+        description: authored["description"] || format(facet.description, gem: gem_name),
+        tools: facet.tools,
+        body: authored["body"] || format(facet.body, gem: gem_name),
+        knowledge: guide.prose,
         source_path: File.join(agents_dir, "#{gem_name}-#{facet.name}.md")
       )
     end
