@@ -68,9 +68,12 @@ set up unless asked)>
 
 ## Rules that make the trio consistent
 
-- `scope` must be **identical across the whole trio**. Before writing, check for a
-  sibling `the_local/agents/<gem>-develop.md` or `<gem>-info.md`; if one exists,
-  copy its `scope:` line verbatim. Otherwise author the scope here.
+- `scope` must be **identical across the whole trio**. Author the trio **one
+  creator at a time, not concurrently** — run concurrently, each creator sees no
+  sibling and invents its own scope, and they diverge. Before writing, read any
+  sibling `the_local/agents/<gem>-*.md`; if one exists, copy its `scope:` line
+  **verbatim**. Only author a fresh scope when no sibling exists yet.
+  `rake the_local:check` rejects a trio whose scope lines disagree.
 - You author only `description`, `scope`, and the body. The keys, their order, and
   `tools: Bash, Read, Edit` are fixed — do not change them.
 

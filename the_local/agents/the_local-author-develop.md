@@ -74,10 +74,12 @@ runs, which command to run after>
 - `description` is the **routing surface**. Name the real tasks a user would ask
   for. A description that only says the gem's name ("any `<gem>` work") is broken —
   it matches only someone who already named the gem, i.e. when no local was needed.
-- `scope` must be **identical across the whole trio**. Before writing, check for a
-  sibling `the_local/agents/<gem>-info.md` or `<gem>-install.md`; if one exists,
-  copy its `scope:` line verbatim. If none exists yet, author the scope here and
-  the other creators will inherit it.
+- `scope` must be **identical across the whole trio**. Author the trio **one
+  creator at a time, not concurrently** — run concurrently, each creator sees no
+  sibling and invents its own scope, and they diverge. Before writing, read any
+  sibling `the_local/agents/<gem>-*.md`; if one exists, copy its `scope:` line
+  **verbatim**. Only author a fresh scope when no sibling exists yet.
+  `rake the_local:check` rejects a trio whose scope lines disagree.
 - You author only `description`, `scope`, and the body. The keys, their order, and
   `tools: Read, Write, Edit, Grep` are fixed — do not change them.
 

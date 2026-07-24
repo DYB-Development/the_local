@@ -31,9 +31,11 @@ locals, or when a change to a provider may have made its locals stale.
 
 ## How to use it
 
-1. In the provider gem, run each creator agent — `the_local-author-info`,
-   `-install`, `-develop`. Each investigates the gem's real code and writes its
-   file into `the_local/agents/<gem>-<facet>.md`.
+1. In the provider gem, run the creator agents **one at a time, in sequence** —
+   `the_local-author-info`, then `-install`, then `-develop`. Each investigates
+   the gem's real code and writes its file into `the_local/agents/<gem>-<facet>.md`,
+   copying the scope the first one authored. Running them concurrently lets their
+   scope lines diverge.
 2. Run `rake the_local:check` and confirm the trio holds the format.
 3. Commit `the_local/agents/*.md`. For a git-sourced gem they ship automatically;
    a packaged gem must include `the_local/**/*` in its gemspec `files`.
