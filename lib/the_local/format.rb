@@ -12,5 +12,10 @@ module TheLocal
     # local answers the same four questions in the same order: what it is,
     # the interface, how to use it, the conventions.
     SECTIONS = ["## What", "## Interface", "## How to use it", "## Conventions"].freeze
+
+    def self.problems(markdown)
+      FRONT_MATTER_KEYS.reject { |key| markdown.match?(/^#{key}:/) }
+                       .map { |key| "missing key: #{key}" }
+    end
   end
 end
