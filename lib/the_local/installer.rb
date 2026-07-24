@@ -34,8 +34,8 @@ module TheLocal
     def ensure_committed!(agent)
       return if agent.source_path && File.exist?(agent.source_path)
 
-      raise Error, "the_local: #{agent.gem_name} registered #{agent.qualified_name} without a committed " \
-                   "agent file. Run `rake the_local:build` in #{agent.gem_name} and commit its the_local/agents/."
+      raise Error, "the_local: #{agent.gem_name} is missing the committed file for #{agent.qualified_name}. " \
+                   "Author it with the the_local-author-* agents in #{agent.gem_name} and commit its the_local/agents/."
     end
   end
 end

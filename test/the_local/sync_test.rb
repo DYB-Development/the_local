@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
-require "the_local/builder"
+require "fileutils"
 require "tmpdir"
 
 module TheLocal
@@ -17,7 +17,14 @@ module TheLocal
                   description: "Build UI.", tools: "Read, Write, Edit", body: "…", knowledge: "API.",
                   source_path: File.join(agents_dir, "keystone-develop.md"))
       )
-      Builder.new(registry: TheLocal.registry).call
+      commit_agents
+    end
+
+    def commit_agents
+      TheLocal.registry.agents.select(&:source_path).each do |agent|
+        FileUtils.mkdir_p(File.dirname(agent.source_path))
+        File.write(agent.source_path, agent.to_markdown)
+      end
     end
 
     def sync_into(dir, direct: ["keystone_ui"], bundled: ["keystone_ui"])
