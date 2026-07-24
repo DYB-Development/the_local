@@ -44,6 +44,7 @@ module TheLocal
     def problems_for(agent)
       markdown = agent.to_markdown
       problems = []
+      problems << "#{agent.qualified_name}: unauthored scope" if agent.scope.to_s.strip.empty?
       problems << "#{agent.qualified_name}: TODO: placeholders remain" if markdown.match?(PLACEHOLDER)
       missing = REQUIRED_SECTIONS.reject { |section| markdown.include?(section) }
       problems << "#{agent.qualified_name}: missing #{missing.join(", ")}" if missing.any?

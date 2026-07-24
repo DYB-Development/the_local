@@ -14,11 +14,11 @@ module TheLocal
       TheLocal.reset!
     end
 
-    def register_develop(dir, knowledge)
+    def register_develop(dir, knowledge, scope: "UI — building screens")
       TheLocal.registry.add(
         Agent.new(gem_name: "keystone_ui", prefix: "keystone", name: "develop",
                   description: "d", tools: "Read", body: "b", knowledge: knowledge,
-                  source_path: File.join(dir, "keystone-develop.md"))
+                  source_path: File.join(dir, "keystone-develop.md"), scope: scope)
       )
     end
 
@@ -30,6 +30,18 @@ module TheLocal
         path = File.join(dir, "keystone-develop.md")
 
         assert_equal TheLocal.registry.agents.first.to_markdown, File.read(path)
+      end
+    end
+
+    def test_validate_rejects_a_local_whose_scope_was_never_authored
+      Dir.mktmpdir do |dir|
+        register_develop(dir, COMPLETE_GUIDE, scope: nil)
+
+        error = assert_raises(TheLocal::Error) do
+          Builder.new(registry: TheLocal.registry, validate: true).call
+        end
+
+        assert_match(/unauthored scope/, error.message)
       end
     end
 
