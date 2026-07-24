@@ -39,12 +39,12 @@ module TheLocal
                        "\n# the_local renders #{gem_name}'s committed locals at build time.\n#{GEMFILE_LINE}\n"
       end
 
-      def hook_build_task_into_rakefile
+      def hook_check_task_into_rakefile
         return unless File.exist?(File.join(destination_root, "Rakefile"))
         return if File.read(File.join(destination_root, "Rakefile")).include?(RAKEFILE_REQUIRE)
 
         append_to_file "Rakefile",
-                       "\n# Render #{gem_name}'s committed the_local agent files: `rake the_local:build`.\n" \
+                       "\n# Check #{gem_name}'s committed the_local locals: `rake the_local:check`.\n" \
                        "#{RAKEFILE_REQUIRE}\n"
       end
 
