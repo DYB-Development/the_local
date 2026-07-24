@@ -18,17 +18,24 @@ gem and makes no changes; it answers "what is this and when would I reach for it
 class or method names, no implementation detail. Only the public contract a user
 relies on.
 
+## Facts come from code, not documents
+
+Every fact you write is verified in the **code**. The README, an existing guide, a
+committed local, comments — all describe *intent* and may be stale or wrong. Use a
+doc only to orient yourself to *where to look*; then confirm the fact in the source
+before you write it. If a doc and the code disagree, the code wins and the doc is
+wrong. Never copy a claim from a document you haven't checked against the code.
+
 ## How to author it
 
 1. **Find the gem name** — the basename of the single `*.gemspec` in the root.
-2. **Investigate the current code**:
-   - the README and any usage docs — what problem the gem solves
-   - the public API surface at a glance — the entry points a user names
-   - the core concepts and vocabulary a user must understand
-   - the gemspec summary and what companion gems it names (name them; do not
+2. **Investigate the current code** — the source is the truth:
+   - the public API surface — the entry points a user names, read from where they
+     are actually defined
+   - the core concepts and vocabulary, as the code models them
+   - the gemspec dependencies, and what companion gems it names (name them; do not
      explain their internals)
-   Prefer the current source over any existing guide or committed local; those may
-   be stale.
+   - a README only as a map to those places — verify everything it claims
 3. **Author the file** to exactly this shape:
 
 ```

@@ -18,17 +18,25 @@ a host and set it up, as a user follows them, with no view inside the gem. The
 `lib/`, no private classes, no implementation detail — only the commands a user
 runs and the host files they create or edit.
 
+## Facts come from code, not documents
+
+Every step you write is verified in the **code** — the generator that runs, the
+initializer template it writes, the migration it installs. A README's install
+section, an existing guide, or a committed local describes *intent* and may be
+stale. Use a doc only to find *where* the real setup lives; confirm each command
+and file against the source before you write it. If a doc and the code disagree,
+the code wins.
+
 ## How to author it
 
 1. **Find the gem name** — the basename of the single `*.gemspec` in the root.
-2. **Investigate the current code**:
+2. **Investigate the current code** — the source is the truth:
    - the gemspec dependencies and Ruby/Rails version requirements
    - any generators (`lib/generators`, an install generator) — the commands a user
-     runs and the host files they create
+     runs and the host files they actually create
    - initializers, migrations, and required host wiring (mounts, config)
-   - the README's install/setup section
    - which companion gems must NOT be set up as part of the base install
-   Prefer the current source over any existing guide or committed local.
+   - a README's install section only as a map — verify every command it lists
 3. **Author the file** to exactly this shape:
 
 ```

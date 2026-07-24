@@ -21,18 +21,26 @@ class or method names, no "this is implemented by…", no source citations. If a
 fact isn't part of the public contract a user relies on, it does not belong in the
 file.
 
+## Facts come from code, not documents
+
+Every signature, step, and invariant you write is verified in the **code**. A
+README, an existing guide, a committed local, comments, commit messages — all
+describe *intent* and may be stale or wrong. Use a doc only to orient yourself to
+*where to look*; then read the source and confirm. If a doc and the code disagree,
+the code wins and the doc is wrong. You are re-deriving the truth from the code as
+it is now — never copying a claim you haven't checked.
+
 ## How to author it
 
 1. **Find the gem name** — the basename of the single `*.gemspec` in the root.
 2. **Investigate the current code** (this is the whole point — read, don't guess):
-   - the public DSL / API a consumer calls to build with the gem
+   - the public DSL / API a consumer calls to build with the gem, read from where
+     it is defined
    - real call sites: how consuming apps actually use it
-   - the tests, read as usage examples and as the list of guarantees
+   - the tests, read as executable usage examples and as the list of guarantees
    - the invariants the code enforces — required steps, validations, a
      schema/dump/rebuild step that must follow a change, anything that raises if
      skipped
-   Prefer the current source over any existing guide or committed local; those may
-   be stale. You are re-deriving the truth from the code as it is now.
 3. **Author the file** to exactly this shape:
 
 ```
