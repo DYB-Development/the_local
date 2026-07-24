@@ -9,6 +9,7 @@ module TheLocal
   class ProviderCheckTest < Minitest::Test
     def with_agent(markdown)
       Dir.mktmpdir do |root|
+        File.write(File.join(root, "demo.gemspec"), "")
         agents = File.join(root, "the_local", "agents")
         FileUtils.mkdir_p(agents)
         File.write(File.join(agents, "demo-info.md"), markdown)
