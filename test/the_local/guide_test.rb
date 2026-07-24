@@ -10,5 +10,11 @@ module TheLocal
 
       assert_equal "## Demo", guide.prose
     end
+
+    def test_reads_the_authored_scope
+      guide = Guide.new("---\nscope: events — defining and emitting them\n---\n\n## Demo\n")
+
+      assert_equal "events — defining and emitting them", guide.scope
+    end
   end
 end
