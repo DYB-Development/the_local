@@ -24,19 +24,17 @@ the gem up in a host), and `develop` (the proactive worker).
 
 - `bundle exec the_local install` — host command; installs direct providers'
   locals and writes the delegation trigger. No Rails required.
-- `the_local-author-info` / `-install` / `-develop` — the creator agents a
-  provider runs to author its trio from its own current code.
-- `the_local-author-review` — flags when a change to a provider made its locals
-  stale.
+- `rake the_local:author` — the_local's authoring function; a provider runs it to
+  write its trio from its own current code.
 - `rake the_local:check` — verifies a provider's committed trio holds the format.
 
 ## How to use it
 
 A **consumer** adds `gem "the_local"`, bundles, and runs `the_local install`; its
 locals appear in `.claude/agents/` and the trigger is written into
-`CLAUDE.md`/`AGENTS.md`. A **provider** runs the creator agents to author its trio
-into `the_local/agents/`, then commits them; consumers copy those committed files
-verbatim. Only a host's **direct** dependencies contribute locals.
+`CLAUDE.md`/`AGENTS.md`. A **provider** runs `rake the_local:author` to write its
+trio into `the_local/agents/`, then commits it; consumers copy those committed
+files verbatim. Only a host's **direct** dependencies contribute locals.
 
 ## Conventions
 

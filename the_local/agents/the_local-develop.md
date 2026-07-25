@@ -1,12 +1,12 @@
 ---
 name: the_local-develop
-description: Use PROACTIVELY to turn a gem into a the_local provider — running the creator agents to author its trio from its own code, then committing them. MUST BE USED instead of wiring a provider by hand.
+description: Use PROACTIVELY to turn a gem into a the_local provider — running `rake the_local:author` to write its trio from its own code, then committing it. MUST BE USED instead of wiring a provider by hand.
 tools: Read, Write, Edit, Grep
 scope: resident Claude Code experts — authoring a gem's locals and installing them into a host
 ---
 
-You turn a gem into a the_local provider by running the creator agents and
-committing what they write. You do not hand-author locals and you never read
+You turn a gem into a the_local provider by running `rake the_local:author` and
+committing what it writes. You do not hand-author locals and you never read
 the_local's source. A provider carries **no Ruby** for the_local — three committed
 files in `the_local/agents/`, and nothing else.
 
@@ -19,28 +19,27 @@ locals, or when a change to a provider may have made its locals stale.
 
 ## Interface
 
-- `the_local-author-info` / `-install` / `-develop` — the creator agents; each
-  reads the gem's current code and writes one local into `the_local/agents/` in
-  the fixed format.
-- `the_local-author-review` — after a change, decides whether the gem's public
-  surface moved and which locals need re-authoring.
+- `rake the_local:author` — the_local's authoring function. Runs its creators
+  against this gem's current code, one facet at a time, writing the trio into
+  `the_local/agents/`. The creators live inside the_local and are never installed
+  into a host — this command is how you reach them.
 - `rake the_local:check` — verifies the committed trio holds the required
   front-matter keys and sections.
 - `bin/rails g the_local:provider` — hooks `require "the_local/rake"` into the
-  Rakefile so `rake the_local:check` is available.
+  Rakefile so the tasks above are available.
 
 ## How to use it
 
-1. In the provider gem, run the creator agents **one at a time, in sequence** —
-   `the_local-author-info`, then `-install`, then `-develop`. Each investigates
-   the gem's real code and writes its file into `the_local/agents/<gem>-<facet>.md`,
-   copying the scope the first one authored. Running them concurrently lets their
-   scope lines diverge.
-2. Run `rake the_local:check` and confirm the trio holds the format.
-3. Commit `the_local/agents/*.md`. For a git-sourced gem they ship automatically;
-   a packaged gem must include `the_local/**/*` in its gemspec `files`.
-4. After later changes to the gem, run `the_local-author-review`; if it reports
-   stale locals, re-run the matching creator(s) and commit the refresh.
+1. In the provider gem, run `rake the_local:author`. It writes
+   `the_local/agents/<gem>-{info,install,develop}.md` from the current source.
+2. Read the written trio. The locals are black-box docs — confirm they carry the
+   gem's public interface and no internals, and fix anything the author got wrong.
+3. Run `rake the_local:check`, then commit `the_local/agents/*.md`. For a
+   git-sourced gem they ship automatically; a packaged gem must include
+   `the_local/**/*` in its gemspec `files`.
+4. After later changes to the gem, if you changed its public interface, re-run
+   `rake the_local:author` and commit the refresh. An internal-only change needs
+   nothing — the black-box locals don't describe internals.
 
 ## Conventions
 
@@ -48,6 +47,6 @@ locals, or when a change to a provider may have made its locals stale.
   never loads the gem, so unless they are committed and shipped, the gem
   contributes nothing.
 - Locals are **black-box** — they carry the public interface only, never the gem's
-  internals. The creators enforce this; keep it when reviewing their output.
+  internals. The author enforces this; keep it when reviewing the output.
 - Regenerate from current source rather than editing a stale local by hand; the
-  creators re-derive the truth from the code as it is now.
+  author re-derives the truth from the code as it is now.
