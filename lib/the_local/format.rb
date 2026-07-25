@@ -6,6 +6,10 @@ module TheLocal
 
     SECTIONS = ["## What", "## Interface", "## How to use it", "## Conventions"].freeze
 
+    def self.section(markdown, heading)
+      markdown[/^#{Regexp.escape(heading)}$\n(.*?)(?=^## |\z)/m, 1].to_s
+    end
+
     def self.problems(markdown)
       missing_keys(markdown) + missing_sections(markdown)
     end
