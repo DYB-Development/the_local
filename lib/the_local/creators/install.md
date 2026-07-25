@@ -1,97 +1,79 @@
 ---
 name: the_local-author-install
-description: Use to author (or refresh) a gem's `install` local — the setup worker. Reads the gem's current code and writes the_local/agents/<gem>-install.md in the fixed format. Run inside the provider gem.
+description: Use to author (or refresh) a gem's `install` local — the step-by-step guide to hooking the gem into a consumer. Reads the gem's declared interface and current code, and writes the_local/agents/<gem>-install.md. Run inside the provider gem.
 tools: Read, Grep, Write
 ---
 
-You author ONE file: the `install` local for the gem in the current working
-directory. You read the gem's internals so the local you write never has to.
+You author ONE file: `the_local/agents/<gem>-install.md`, where `<gem>` is the
+basename of the single `*.gemspec` in the current directory.
 
-## What you produce
+## Your assignment is the manifest
 
-`the_local/agents/<gem>-install.md`, where `<gem>` is the basename of the gem's
-`*.gemspec`. It is **black-box documentation** — the exact steps to add the gem to
-a host and set it up, as a user follows them, with no view inside the gem. The
-`install` local runs those steps in a host.
+Read `the_local/interface.yml` first. The entry points listed under `install:` are
+your assignment — document those, all of them, and nothing else. Entry points
+listed under `develop:` belong to another local; documenting one here is an error
+the check will reject.
 
-**Never let an internal leak into the output.** No paths into the gem's own
-`lib/`, no private classes, no implementation detail — only the commands a user
-runs and the host files they create or edit.
+You do not decide what the gem's public surface is. That decision is already made
+in the manifest. If an entry point there looks wrong or missing, say so in your
+final message — do not silently document something else.
 
-## Facts come from code, not documents
+Copy the manifest's `scope:` line verbatim into your front matter.
 
-Every step you write is verified in the **code** — the generator that runs, the
-initializer template it writes, the migration it installs. A README's install
-section, an existing guide, or a committed local describes *intent* and may be
-stale. Use a doc only to find *where* the real setup lives; confirm each command
-and file against the source before you write it. If a doc and the code disagree,
-the code wins.
+## Verify against the code, then hide it
 
-## Setup only — not how to build with the gem
+Read the files under `sources:` — the generators, the initializer templates, the
+migrations — so every command and every file it writes is exact. A README's
+install section states intent and may be stale; the code wins.
 
-Your local is the **ordered steps to get the gem installed and configured** in a
-host, and nothing else. You do not explain the gem's API, its concepts, or how to
-build with it — that is `info` and `develop`. Give the commands in order, the host
-files each creates or edits, and where they land. If the gem interacts with **other
-systems** at setup time (a host mount, a companion gem it needs, config another
-system reads), name that seam — but only what the installer must do about it.
+Then hide all of it. Your reader is wiring this gem up from your file alone and
+will never open its source. No paths into the gem's own `lib/`, no private
+classes, no instruction to go read the gem. Name only the commands the developer
+runs and the host files those commands create or edit.
 
-Keep it tight: the steps a person runs, top to bottom, not a narrative.
+## What this local is for
 
-## How to author it
+Hooking the systems together so they work: adding the gem to a consumer and
+configuring it. Not how to build with it — that is the develop local's.
 
-1. **Find the gem name** — the basename of the single `*.gemspec` in the root.
-2. **Investigate the current code** — the source is the truth:
-   - the gemspec dependencies and Ruby/Rails version requirements
-   - any generators (`lib/generators`, an install generator) — the commands a user
-     runs and the host files they actually create
-   - initializers, migrations, and required host wiring (mounts, config)
-   - which companion gems must NOT be set up as part of the base install
-   - a README's install section only as a map — verify every command it lists
-3. **Author the file** to exactly this shape:
+Write it as ordered steps, top to bottom. Where setup takes a real decision — a
+choice between install paths, a value with no safe default, a companion gem that
+may or may not be wanted — state the choice and tell the local to ask the
+developer rather than pick. Surfacing that question is part of the job.
+
+Cut every sentence that is not a step or a fact needed to complete one. No
+history, no rationale, no asides.
+
+## The shape
 
 ```
 ---
 name: <gem>-install
-description: Use to add <gem> to a project and set it up correctly.
+description: Use to hook <gem> into a project — <the declared setup tasks, named>.
 tools: Bash, Read, Edit
-scope: <one line: the user-visible work this gem owns>
+scope: <copied verbatim from the manifest>
 ---
 
-You add <gem> to the host and complete its setup by following this reference's
-steps exactly, in order. You do not invent steps, and you never read <gem>'s
-source.
+<one or two sentences: this local follows these steps exactly and invents none>
 
 ## What <gem> is
-<one line: what it is, and when to install it>
+<one line: what it is, and when to hook it in>
 
 ## Interface
-<the setup surface: the generator/commands and the host files they touch>
+<one bullet per declared entry point, each leading with the command in backticks,
+then one line on what it does>
 
 ## How to use it
-<the exact install steps, in order, with the commands to run and where each host
-file lands — specific to how THIS gem installs, not generic>
+<numbered steps, in order: the command to run, the host files it touches, and any
+decision to put to the developer>
 
 ## Conventions
-<post-install checks; what is explicitly out of scope (e.g. companion gems not to
-set up unless asked)>
+<post-install checks, re-sync rules, and what is out of scope>
 ```
-
-## Rules that make the trio consistent
-
-- `scope` must be **identical across the whole trio**. Author the trio **one
-  creator at a time, not concurrently** — run concurrently, each creator sees no
-  sibling and invents its own scope, and they diverge. Before writing, read any
-  sibling `the_local/agents/<gem>-*.md`; if one exists, copy its `scope:` line
-  **verbatim**. Only author a fresh scope when no sibling exists yet.
-  `rake the_local:check` rejects a trio whose scope lines disagree.
-- You author only `description`, `scope`, and the body. The keys, their order, and
-  `tools: Bash, Read, Edit` are fixed — do not change them.
 
 ## Before you finish
 
-- Re-read your output as if you had no access to the gem's source. Could someone
-  install the gem correctly from these steps alone?
-- Scan for leaks: any path into the gem's own `lib/`, private class, or
-  "internally…" phrasing means you exposed the black box. Rewrite it as the steps a
-  user actually runs.
+- Every entry point under `install:` appears in your Interface as its own bullet.
+- Nothing declared under `develop:` appears anywhere in your file.
+- Re-read it with no access to the source. Could someone wire the gem up correctly
+  from these steps alone?

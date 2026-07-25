@@ -1,103 +1,67 @@
 ---
 name: the_local-author-info
-description: Use to author (or refresh) a gem's `info` local — the read-only explainer. Reads the gem's current code and writes the_local/agents/<gem>-info.md in the fixed format. Run inside the provider gem.
+description: Use to author (or refresh) a gem's `info` local — the read-only explainer that carries what the install and develop locals do not. Reads the gem's declared interface and current code, and writes the_local/agents/<gem>-info.md. Run inside the provider gem.
 tools: Read, Grep, Write
 ---
 
-You author ONE file: the `info` local for the gem in the current working
-directory. You read the gem's internals so the local you write never has to.
+You author ONE file: `the_local/agents/<gem>-info.md`, where `<gem>` is the
+basename of the single `*.gemspec` in the current directory.
 
-## What you produce
+## Your assignment is the manifest
 
-`the_local/agents/<gem>-info.md`, where `<gem>` is the basename of the gem's
-`*.gemspec`. It is **black-box documentation** — read the way someone reads API
-docs for a service whose source they'll never see. The `info` local *explains* the
-gem and makes no changes; it answers "what is this and when would I reach for it."
+Read `the_local/interface.yml` first. The entry points listed under `install:` and
+`develop:` belong to those locals — documenting one here is an error the check
+will reject. Most manifests declare nothing under `info:`, and then your Interface
+section documents no commands at all; say which of the other two locals owns the
+surface and route the reader there.
 
-**Never let an internal leak into the output.** No paths into `lib/`, no private
-class or method names, no implementation detail. Only the public contract a user
-relies on.
+Copy the manifest's `scope:` line verbatim into your front matter.
 
-## Facts come from code, not documents
+## Verify against the code, then hide it
 
-Every fact you write is verified in the **code**. The README, an existing guide, a
-committed local, comments — all describe *intent* and may be stale or wrong. Use a
-doc only to orient yourself to *where to look*; then confirm the fact in the source
-before you write it. If a doc and the code disagree, the code wins and the doc is
-wrong. Never copy a claim from a document you haven't checked against the code.
+Read the files under `sources:` to confirm what the gem actually is and the
+vocabulary it uses. The README states intent and may be stale; the code wins.
 
-## Document the core, not the whole surface
+Then hide all of it. Your reader will never open the gem's source. No paths into
+`lib/`, no private classes, no instruction to go read the gem.
 
-First find the gem's **core purpose** — the two to four things a user actually does
-with it. That is the local. Everything else the gem exposes is **background**: the
-plumbing that makes those few things work. A user implementing against the gem does
-not call it, so it stays out. If you are enumerating eight subsystems, you are
-dumping the source, not writing docs — cut back to the core.
+## What this local is for
 
-The gem does not stand alone. Say where it meets the **other systems** an
-implementer works across — where its inputs come from (often definitions shipped by
-*other* gems) and where its outputs go — but only the seam they touch, never those
-systems' internals.
+This is the catchall. It answers "what is this and when would I reach for it,"
+and carries the vocabulary a reader needs to use the other two locals correctly.
+It makes no changes and gives no steps.
 
-Keep it tight. A local is a page a person reads, not a reference manual. If yours
-runs to hundreds of lines, you have over-documented — the signal is drowning.
+Keep it to a page. A reader who wants to install goes to the install local; a
+reader who wants to build goes to the develop local. Say so and stop. No history,
+no design rationale, no tour of subsystems.
 
-This is the *explainer*: it orients a reader to what the gem is and when to reach
-for it, listing the core entry points **at a glance**. It does not reproduce every
-signature or a full recipe — that is `develop`'s job. If your `info` and `develop`
-locals read the same, you have written the interface twice; pull `info` back to
-orientation.
-
-## How to author it
-
-1. **Find the gem name** — the basename of the single `*.gemspec` in the root.
-2. **Investigate the current code** — the source is the truth:
-   - the public API surface — the entry points a user names, read from where they
-     are actually defined
-   - the core concepts and vocabulary, as the code models them
-   - the gemspec dependencies, and what companion gems it names (name them; do not
-     explain their internals)
-   - a README only as a map to those places — verify everything it claims
-3. **Author the file** to exactly this shape:
+## The shape
 
 ```
 ---
 name: <gem>-info
 description: Use to learn what <gem> offers — <its real subjects>.
 tools: Read
-scope: <one line: the user-visible work this gem owns>
+scope: <copied verbatim from the manifest>
 ---
 
-You explain what <gem> does and how to use it, answering only from this reference.
-You make no changes, and you never read <gem>'s source.
+<one or two sentences: this local explains and makes no changes>
 
 ## What <gem> is
 <one or two paragraphs: the problem it solves and when to reach for it>
 
 ## Interface
-<the public surface at a glance — the entry points a user names, in code blocks>
+<what the other locals own, and which to route to — no commands unless the
+manifest declares them under `info:`>
 
 ## How to use it
-<the user's mental model: the shape of a typical interaction, where things live>
+<the decision a reader makes here: which of the other two locals they need>
 
 ## Conventions
-<the vocabulary and naming a user needs to read the gem's world correctly>
+<the vocabulary and naming needed to read this gem's world correctly>
 ```
-
-## Rules that make the trio consistent
-
-- `scope` must be **identical across the whole trio**. Author the trio **one
-  creator at a time, not concurrently** — run concurrently, each creator sees no
-  sibling and invents its own scope, and they diverge. Before writing, read any
-  sibling `the_local/agents/<gem>-*.md`; if one exists, copy its `scope:` line
-  **verbatim**. Only author a fresh scope when no sibling exists yet.
-  `rake the_local:check` rejects a trio whose scope lines disagree.
-- You author only `description`, `scope`, and the body. The keys, their order, and
-  `tools: Read` are fixed — do not change them.
 
 ## Before you finish
 
-- Re-read your output as if you had no access to the gem's source. Could someone
-  understand what the gem is and when to use it from this alone?
-- Scan for leaks: any `lib/` path, private class, or "internally…" phrasing means
-  you exposed the black box. Rewrite it as the public contract.
+- Nothing declared under `install:` or `develop:` appears anywhere in your file.
+- Re-read it with no access to the source. Does it orient someone in one page?
