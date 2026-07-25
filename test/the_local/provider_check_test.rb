@@ -62,6 +62,13 @@ module TheLocal
       end
     end
 
+    def test_reports_a_scope_that_disagrees_with_the_manifest
+      declaring("scope: routing events\n", "") do |root|
+        assert_includes ProviderCheck.new(root).problems,
+                        "demo-info.md: scope does not match the manifest"
+      end
+    end
+
     def test_reports_when_the_trio_scopes_diverge
       Dir.mktmpdir do |root|
         File.write(File.join(root, "demo.gemspec"), "")

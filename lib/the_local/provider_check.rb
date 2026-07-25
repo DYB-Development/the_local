@@ -13,7 +13,8 @@ module TheLocal
     end
 
     def problems
-      per_file_problems + scope_agreement_problems + coverage_problems + over_reach_problems
+      per_file_problems + scope_agreement_problems + coverage_problems +
+        over_reach_problems + scope_declaration_problems
     end
 
     private
@@ -22,7 +23,7 @@ module TheLocal
       trio_files.flat_map do |file|
         documented = Format.section(File.read(file), "## Interface")
         declared.entry_points.reject { |entry_point| documented.include?(entry_point) }
-                .map { |entry_point| "#{File.basename(file)}: undocumented entry point: #{entry_point}" }
+                             .map { |entry_point| "#{File.basename(file)}: undocumented entry point: #{entry_point}" }
       end
     end
 
@@ -38,6 +39,13 @@ module TheLocal
 
     def documented_spans(markdown)
       Format.section(markdown, "## Interface").scan(/`([^`\n]+)`/).flatten
+    end
+
+    def scope_declaration_problems
+      return [] if declared.scope.nil?
+
+      trio_files.reject { |file| FrontMatter.new(File.read(file)).scope == declared.scope }
+                .map { |file| "#{File.basename(file)}: scope does not match the manifest" }
     end
 
     def declared
