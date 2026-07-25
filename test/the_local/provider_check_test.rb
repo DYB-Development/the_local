@@ -36,6 +36,25 @@ module TheLocal
         "## What demo is\n## Interface\n## How to use it\n## Conventions\n"
     end
 
+    def declaring(manifest, interface)
+      Dir.mktmpdir do |root|
+        File.write(File.join(root, "demo.gemspec"), "")
+        FileUtils.mkdir_p(File.join(root, "the_local", "agents"))
+        File.write(File.join(root, "the_local", "interface.yml"), manifest)
+        File.write(File.join(root, "the_local", "agents", "demo-info.md"),
+                   "---\nname: demo-info\ndescription: d\ntools: Read\nscope: emitting events\n---\n\n" \
+                   "## What demo is\n## Interface\n#{interface}\n## How to use it\n## Conventions\n")
+        yield root
+      end
+    end
+
+    def test_reports_a_declared_entry_point_the_local_never_documents
+      declaring("interface:\n  - Demo.emit\n  - rake demo:drain\n", "`Demo.emit`") do |root|
+        assert_includes ProviderCheck.new(root).problems,
+                        "demo-info.md: undocumented entry point: rake demo:drain"
+      end
+    end
+
     def test_reports_when_the_trio_scopes_diverge
       Dir.mktmpdir do |root|
         File.write(File.join(root, "demo.gemspec"), "")

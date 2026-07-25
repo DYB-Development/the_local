@@ -2,6 +2,7 @@
 
 require_relative "format"
 require_relative "front_matter"
+require_relative "interface"
 
 module TheLocal
   class ProviderCheck
@@ -12,10 +13,22 @@ module TheLocal
     end
 
     def problems
-      per_file_problems + scope_agreement_problems
+      per_file_problems + scope_agreement_problems + coverage_problems
     end
 
     private
+
+    def coverage_problems
+      trio_files.flat_map do |file|
+        documented = Format.section(File.read(file), "## Interface")
+        declared.entry_points.reject { |entry_point| documented.include?(entry_point) }
+                .map { |entry_point| "#{File.basename(file)}: undocumented entry point: #{entry_point}" }
+      end
+    end
+
+    def declared
+      @declared ||= Interface.at(@gem_root)
+    end
 
     def per_file_problems
       trio_files.flat_map do |file|
