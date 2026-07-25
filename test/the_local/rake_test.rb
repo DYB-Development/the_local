@@ -15,7 +15,7 @@ module TheLocal
       assert rake_app.lookup("the_local:author")
     end
 
-    def test_check_task_rejects_a_trio_that_breaks_the_format
+    def test_check_task_rejects_a_local_that_breaks_the_format
       Dir.mktmpdir do |root|
         File.write(File.join(root, "demo.gemspec"), "")
         agents = File.join(root, "the_local", "agents")

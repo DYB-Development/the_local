@@ -46,7 +46,7 @@ module TheLocal
       end
     end
 
-    def test_takes_scope_from_the_trio_not_a_scopeless_sibling
+    def test_takes_scope_from_a_local_not_a_scopeless_sibling
       Dir.mktmpdir do |dir|
         agents_dir = File.join(dir, "the_local", "agents")
         FileUtils.mkdir_p(agents_dir)
