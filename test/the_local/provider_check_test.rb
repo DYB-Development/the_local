@@ -55,6 +55,13 @@ module TheLocal
       end
     end
 
+    def test_reports_an_interface_entry_the_manifest_never_declared
+      declaring("interface:\n  - Demo.emit\n", "`Demo.emit`\n`Demo::Spool.flush`") do |root|
+        assert_includes ProviderCheck.new(root).problems,
+                        "demo-info.md: undeclared entry point: Demo::Spool.flush"
+      end
+    end
+
     def test_reports_when_the_trio_scopes_diverge
       Dir.mktmpdir do |root|
         File.write(File.join(root, "demo.gemspec"), "")

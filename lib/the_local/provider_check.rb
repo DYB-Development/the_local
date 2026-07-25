@@ -13,7 +13,7 @@ module TheLocal
     end
 
     def problems
-      per_file_problems + scope_agreement_problems + coverage_problems
+      per_file_problems + scope_agreement_problems + coverage_problems + over_reach_problems
     end
 
     private
@@ -24,6 +24,20 @@ module TheLocal
         declared.entry_points.reject { |entry_point| documented.include?(entry_point) }
                 .map { |entry_point| "#{File.basename(file)}: undocumented entry point: #{entry_point}" }
       end
+    end
+
+    def over_reach_problems
+      return [] if declared.entry_points.empty?
+
+      trio_files.flat_map do |file|
+        documented_spans(File.read(file))
+          .reject { |span| declared.entry_points.any? { |entry_point| span.include?(entry_point) } }
+          .map { |span| "#{File.basename(file)}: undeclared entry point: #{span}" }
+      end
+    end
+
+    def documented_spans(markdown)
+      Format.section(markdown, "## Interface").scan(/`([^`\n]+)`/).flatten
     end
 
     def declared
