@@ -38,7 +38,7 @@ module TheLocal
     end
 
     def documented_spans(markdown)
-      Format.section(markdown, "## Interface").scan(/`([^`\n]+)`/).flatten
+      Format.section(markdown, "## Interface").scan(/^\s*-\s+`([^`\n]+)`/).flatten
     end
 
     def scope_declaration_problems

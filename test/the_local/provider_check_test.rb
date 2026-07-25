@@ -56,9 +56,16 @@ module TheLocal
     end
 
     def test_reports_an_interface_entry_the_manifest_never_declared
-      declaring("interface:\n  - Demo.emit\n", "`Demo.emit`\n`Demo::Spool.flush`") do |root|
+      declaring("interface:\n  - Demo.emit\n", "- `Demo.emit`\n- `Demo::Spool.flush`") do |root|
         assert_includes ProviderCheck.new(root).problems,
                         "demo-info.md: undeclared entry point: Demo::Spool.flush"
+      end
+    end
+
+    def test_ignores_backticked_prose_that_does_not_lead_a_bullet
+      declaring("interface:\n  - Demo.emit\n", "- `Demo.emit` — writes to `log/demo.log`") do |root|
+        refute_includes ProviderCheck.new(root).problems,
+                        "demo-info.md: undeclared entry point: log/demo.log"
       end
     end
 
