@@ -19,8 +19,8 @@ module TheLocal
       @declaration["scope"]
     end
 
-    def entry_points
-      @declaration["interface"] || []
+    def entry_points_for(facet)
+      @declaration[facet] || []
     end
   end
 end

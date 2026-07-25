@@ -21,9 +21,9 @@ module TheLocal
       end
     end
 
-    def test_reads_the_declared_entry_points
-      with_manifest("interface:\n  - Demo.emit\n  - rake demo:drain\n") do |root|
-        assert_equal ["Demo.emit", "rake demo:drain"], Interface.at(root).entry_points
+    def test_reads_the_entry_points_declared_for_one_facet
+      with_manifest("install:\n  - rake demo:setup\ndevelop:\n  - Demo.emit\n") do |root|
+        assert_equal ["Demo.emit"], Interface.at(root).entry_points_for("develop")
       end
     end
   end
