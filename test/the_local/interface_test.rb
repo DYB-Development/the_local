@@ -20,5 +20,11 @@ module TheLocal
         assert_equal "emitting events", Interface.at(root).scope
       end
     end
+
+    def test_reads_the_declared_entry_points
+      with_manifest("interface:\n  - Demo.emit\n  - rake demo:drain\n") do |root|
+        assert_equal ["Demo.emit", "rake demo:drain"], Interface.at(root).entry_points
+      end
+    end
   end
 end

@@ -18,5 +18,9 @@ module TheLocal
     def scope
       @declaration["scope"]
     end
+
+    def entry_points
+      @declaration["interface"] || []
+    end
   end
 end
