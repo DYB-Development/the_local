@@ -3,20 +3,30 @@
 - A provider gem ships **no Ruby and no guide**. Its committed
   `the_local/agents/<gem>-{info,install,develop}.md` are authored by
   `rake the_local:author`, which runs the_local's creators against the gem's
-  current code — one facet at a time — and writes each local from it. The creators
-  live inside the_local and are never installed into a host.
+  current code — one local at a time — and writes each from it. The creators live
+  inside the_local and are never installed into a host.
+- A provider now declares its public interface in **`the_local/interface.yml`**:
+  the `scope` line, the entry points assigned to `install` and `develop`, and the
+  `sources` that define them. `rake the_local:author` refuses to run without it.
+  Deciding what is public is a human's call, made once and committed, instead of a
+  judgment the creators re-make on every run.
+- The three locals **never overlap**: `install` hooks the gem into a consumer,
+  `develop` covers using it from consuming code, `info` is the read-only catchall.
+  One entry point belongs to exactly one local.
+- `rake the_local:check` enforces that contract in both directions — every declared
+  entry point documented by its own local, nothing undeclared documented anywhere,
+  nothing documented by a local it wasn't declared for — on top of the existing
+  front-matter and section checks.
 - Locals are **black-box docs**: they carry the gem's public interface (how, when,
-  where, what commands) and never reference its internals, and their facts come
-  from the code, not from a README or guide that could be stale. Each documents the
-  gem's core purpose, not its whole surface.
+  where, what commands) and never reference its internals or send a reader into the
+  provider's source. Their facts come from the code, not from a README that could
+  be stale.
 - The deterministic renderer is removed — no `the_local/guide.md`, no
-  `rake the_local:build`, no `Interface`/`ProviderBuild`/`Builder`.
-  `rake the_local:check` validates that a committed trio holds the fixed format
-  (front-matter keys + sections). Install is unchanged: it copies committed files
-  off disk verbatim.
+  `rake the_local:build`, no `ProviderBuild`/`Builder`. Install is unchanged: it
+  copies committed files off disk verbatim.
 - `the_local:provider` wires the dependency and the Rakefile hook only; it no
-  longer scaffolds a guide. `the_local` is its own first provider, its trio
-  authored to the black-box format.
+  longer scaffolds a guide. `the_local` is its own first provider, with a committed
+  manifest its locals are checked against.
 
 ## [0.3.0] - 2026-07-01
 
