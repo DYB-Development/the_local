@@ -25,6 +25,14 @@ module TheLocal
         end
       end
 
+      def test_points_the_next_step_at_declaring_the_interface
+        Dir.mktmpdir do |dir|
+          said, = run_generator_into(dir)
+
+          assert_includes said, "the_local/interface.yml"
+        end
+      end
+
       def test_gemfile_injection_is_idempotent_on_rerun
         Dir.mktmpdir do |dir|
           run_generator_into(dir)

@@ -17,8 +17,8 @@ module TheLocal
       end
 
       def announce_next_step
-        say "Run `rake the_local:author` to write this gem's locals into " \
-            "the_local/agents/, then commit them."
+        say "Declare this gem's public interface in the_local/interface.yml, then " \
+            "run `rake the_local:author` to write its locals into the_local/agents/."
       end
 
       def add_to_gemfile
