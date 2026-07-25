@@ -35,7 +35,7 @@ module TheLocal
       return if agent.source_path && File.exist?(agent.source_path)
 
       raise Error, "the_local: #{agent.gem_name} is missing the committed file for #{agent.qualified_name}. " \
-                   "Author it with the the_local-author-* agents in #{agent.gem_name} and commit its the_local/agents/."
+                   "Run `rake the_local:author` in #{agent.gem_name} and commit its the_local/agents/."
     end
   end
 end

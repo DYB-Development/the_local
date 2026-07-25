@@ -41,5 +41,5 @@ instead; all paths share one engine.
   current dependencies.
 - Install only reads committed files off disk — it never loads a provider gem, so
   a provider that shipped no committed locals contributes nothing.
-- This sets up the_local itself. To make a gem *contribute* locals, use the
-  `the_local-author-*` creator agents, not this local.
+- This sets up the_local itself. To make a gem *contribute* locals, run
+  `rake the_local:author`, not this local.
