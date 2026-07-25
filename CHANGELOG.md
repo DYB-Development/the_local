@@ -1,13 +1,14 @@
 ## [Unreleased]
 
 - A provider gem ships **no Ruby and no guide**. Its committed
-  `the_local/agents/<gem>-{info,install,develop}.md` are authored by the
-  **creator agents** — `the_local-author-info` / `-install` / `-develop` — which
-  read the gem's current code and write each local from it. `the_local-author-review`
-  flags when a change moved the gem's public surface and made the locals stale.
+  `the_local/agents/<gem>-{info,install,develop}.md` are authored by
+  `rake the_local:author`, which runs the_local's creators against the gem's
+  current code — one facet at a time — and writes each local from it. The creators
+  live inside the_local and are never installed into a host.
 - Locals are **black-box docs**: they carry the gem's public interface (how, when,
   where, what commands) and never reference its internals, and their facts come
-  from the code, not from a README or guide that could be stale.
+  from the code, not from a README or guide that could be stale. Each documents the
+  gem's core purpose, not its whole surface.
 - The deterministic renderer is removed — no `the_local/guide.md`, no
   `rake the_local:build`, no `Interface`/`ProviderBuild`/`Builder`.
   `rake the_local:check` validates that a committed trio holds the fixed format

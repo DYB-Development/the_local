@@ -7,8 +7,9 @@ dependency's committed `.md` straight from its gem path on disk. This document
 covers the **provider** side: how a gem contributes those locals.
 
 A provider commits **three files** — `the_local/agents/<gem>-{info,install,develop}.md`
-at its gem root — and ships no Ruby of its own. Those files are authored by the
-**creator agents**, which read the gem's current code and write the locals from it.
+at its gem root — and ships no Ruby of its own. Those files are authored by
+`rake the_local:author`, which reads the gem's current code and writes the locals
+from it.
 
 ## Author from code, commit the `.md`
 
@@ -39,18 +40,19 @@ same shape no matter which gem it's delegating to:
 
 1. **Wire the tooling.** In a Rails-engine gem, run `bin/rails g the_local:provider`;
    it adds `gem "the_local"` to the Gemfile and `require "the_local/rake"` to the
-   Rakefile (which exposes `rake the_local:check`). A plain gem does those two
-   edits by hand.
-2. **Author the trio.** Run the creator agents in the gem — `the_local-author-info`,
-   `the_local-author-install`, `the_local-author-develop`. Each investigates the
-   gem's real code and writes one file into `the_local/agents/`.
-3. **Check and commit.** Run `rake the_local:check` to confirm the trio holds the
-   format, then `git add the_local`. For a packaged gem, make sure `the_local/**/*`
-   is in the gemspec's `files`.
-4. **Keep them current.** After a change to the gem, run `the_local-author-review`;
-   if it reports that the change moved the gem's public surface, re-run the
-   matching creator(s) and commit the refresh. An internal-only change needs no
-   regeneration — the black-box locals don't describe internals.
+   Rakefile (which exposes `rake the_local:author` and `rake the_local:check`). A
+   plain gem does those two edits by hand.
+2. **Author the trio.** Run `rake the_local:author`. It runs the_local's creators
+   against the gem's current code — one facet at a time — and writes the three
+   files into `the_local/agents/`. The creators live inside the_local; nothing is
+   installed into the gem.
+3. **Check and commit.** Read the written trio and fix anything the author got
+   wrong, run `rake the_local:check` to confirm the format, then `git add the_local`.
+   For a packaged gem, make sure `the_local/**/*` is in the gemspec's `files`.
+4. **Keep them current.** After a change to the gem, if you changed its public
+   interface, re-run `rake the_local:author` and commit the refresh. An
+   internal-only change needs nothing — the black-box locals don't describe
+   internals.
 
 `the_local` is its own first provider and uses exactly this wiring;
 `test/the_local/dogfood_test.rb` asserts its committed trio holds the format.

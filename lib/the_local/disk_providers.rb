@@ -5,12 +5,6 @@ require_relative "front_matter"
 require_relative "registry"
 
 module TheLocal
-  # Discovers providers by reading their committed agent files straight from each
-  # bundled gem's path on disk — no gem code is loaded and no register block runs.
-  # The committed .md (the build-and-commit artifact) is the declarative contract;
-  # a provider contributes simply by shipping those files. Populates the same
-  # registry the install pipeline already reads, so Installer/TriggerWriter/Sync
-  # are unchanged.
   module DiskProviders
     AGENTS_GLOB = File.join("the_local", "agents", "*.md")
     LEGACY_AGENTS_GLOB = File.join("lib", "**", "the_local", "agents", "*.md")

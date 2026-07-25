@@ -50,9 +50,9 @@ it (or `rake the_local:refresh`) after a `bundle install`/`update` to re-sync.
 
 **Provider gem** — contribute the locals an app installs. A gem commits three
 files, `the_local/agents/<gem>-{info,install,develop}.md`, and ships no Ruby. They
-are authored by the **creator agents** (`the_local-author-info` / `-install` /
-`-develop`), which read the gem's current code and write the locals from it — so
-the docs never drift from the source. Wire the tooling with:
+are authored by `rake the_local:author`, which reads the gem's current code and
+writes the locals from it — so the docs never drift from the source. Wire the
+tooling with:
 
 ```bash
 bin/rails g the_local:provider

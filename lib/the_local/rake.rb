@@ -5,9 +5,6 @@ require "the_local"
 require "the_local/author"
 require "the_local/provider_check"
 
-# Gem-side tasks. A provider adds `require "the_local/rake"` to its Rakefile.
-# `the_local:check` verifies its committed locals hold the format; the creator
-# agents author them. Host apps don't use these; they install/refresh.
 namespace :the_local do
   desc "Author this provider's committed locals from its current source"
   task :author do

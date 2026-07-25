@@ -4,11 +4,6 @@ require_relative "format"
 require_relative "front_matter"
 
 module TheLocal
-  # Verifies a provider's committed trio holds the fixed shape, without caring
-  # what a creator agent wrote into it. This is what remains of the old build
-  # gate once rendering is gone: structure is enforced, content is authored. Only
-  # the trio (<gem>-info/install/develop) is checked — a gem's other committed
-  # agents, such as the_local's own creators, follow their own shape.
   class ProviderCheck
     FACETS = %w[info install develop].freeze
 
@@ -28,9 +23,6 @@ module TheLocal
       end
     end
 
-    # scope is one provider-level phrase held redundantly in every trio file, so
-    # the three must agree. They can diverge when the creators run concurrently
-    # and each authors its own; a structure-only check would miss it.
     def scope_agreement_problems
       scopes = trio_files.map { |file| FrontMatter.new(File.read(file)).scope }.compact.uniq
       scopes.size > 1 ? ["the trio's scope lines diverge"] : []
