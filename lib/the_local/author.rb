@@ -7,9 +7,13 @@ module TheLocal
     FACETS = %w[info install develop].freeze
     CREATORS = File.expand_path("creators", __dir__)
 
+    def self.claude_command(prompt)
+      ["claude", "-p", "--allowedTools", "Read,Grep,Write",
+       "--permission-mode", "acceptEdits", "--", prompt]
+    end
+
     ClaudeRunner = lambda do |prompt, dir|
-      system("claude", "-p", prompt, "--allowedTools", "Read,Grep,Write",
-             "--permission-mode", "acceptEdits", chdir: dir) ||
+      system(*claude_command(prompt), chdir: dir) ||
         raise(Error, "the_local: the creator run failed in #{dir} (is the `claude` CLI installed?)")
     end
 

@@ -32,6 +32,10 @@ module TheLocal
       assert_equal %w[info install develop], seen
     end
 
+    def test_hands_the_prompt_to_claude_after_the_option_terminator
+      assert_equal ["--", "a prompt"], Author.claude_command("a prompt").last(2)
+    end
+
     def test_runs_each_creator_in_the_provider_gem
       dirs = []
       runner = ->(_prompt, dir) { dirs << dir }
