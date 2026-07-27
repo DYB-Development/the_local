@@ -4,13 +4,6 @@ require "rails/generators"
 
 module TheLocal
   module Generators
-    # `bin/rails g the_local:provider` — wires the provider side of the_local into
-    # a gem: adds the dependency and the Rakefile hook that exposes
-    # `rake the_local:check`. The gem writes no guide and no Ruby of its own; the
-    # committed locals are authored by the the_local-author-* creator agents.
-    #
-    # The companion app side is `the_local:install`; this is its mirror for the
-    # gems that *contribute* locals. See PROVIDERS.md.
     class ProviderGenerator < Rails::Generators::Base
       source_root File.expand_path("templates", __dir__)
 
@@ -24,8 +17,8 @@ module TheLocal
       end
 
       def announce_next_step
-        say "Run the the_local-author-info/install/develop agents to author " \
-            "this gem's locals into the_local/agents/, then commit them."
+        say "Declare this gem's public interface in the_local/interface.yml, then " \
+            "run `rake the_local:author` to write its locals into the_local/agents/."
       end
 
       def add_to_gemfile
@@ -35,27 +28,20 @@ module TheLocal
         return unless File.exist?(gemfile)
         return if File.read(gemfile).include?(GEMFILE_LINE)
 
-        append_to_file "Gemfile",
-                       "\n# the_local renders #{gem_name}'s committed locals at build time.\n#{GEMFILE_LINE}\n"
+        append_to_file "Gemfile", "\n#{GEMFILE_LINE}\n"
       end
 
       def hook_check_task_into_rakefile
         return unless File.exist?(File.join(destination_root, "Rakefile"))
         return if File.read(File.join(destination_root, "Rakefile")).include?(RAKEFILE_REQUIRE)
 
-        append_to_file "Rakefile",
-                       "\n# Check #{gem_name}'s committed the_local locals: `rake the_local:check`.\n" \
-                       "#{RAKEFILE_REQUIRE}\n"
+        append_to_file "Rakefile", "\n#{RAKEFILE_REQUIRE}\n"
       end
 
       private
 
       def gem_name
         File.basename(gemspec.to_s, ".gemspec")
-      end
-
-      def module_name
-        gem_name.split("-").map { |segment| segment.split("_").map(&:capitalize).join }.join("::")
       end
 
       def gem_root

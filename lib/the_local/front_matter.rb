@@ -3,9 +3,6 @@
 require "yaml"
 
 module TheLocal
-  # Reads the YAML front matter of a committed local. Install uses it to recover
-  # the provider's scope for the delegation trigger, reading straight off disk
-  # without loading the provider gem.
   class FrontMatter
     BLOCK = /\A---\n.*?\n---\n/m
 

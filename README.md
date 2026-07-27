@@ -48,11 +48,13 @@ Install **copies each provider's committed `.md` verbatim** — no provider code
 loaded — so every app on the same gem version gets a byte-identical local. Re-run
 it (or `rake the_local:refresh`) after a `bundle install`/`update` to re-sync.
 
-**Provider gem** — contribute the locals an app installs. A gem commits three
-files, `the_local/agents/<gem>-{info,install,develop}.md`, and ships no Ruby. They
-are authored by the **creator agents** (`the_local-author-info` / `-install` /
-`-develop`), which read the gem's current code and write the locals from it — so
-the docs never drift from the source. Wire the tooling with:
+**Provider gem** — contribute the locals an app installs. A gem declares its
+public interface in `the_local/interface.yml` and commits the three locals
+authored from it, `the_local/agents/<gem>-{info,install,develop}.md`; it ships no
+Ruby. `rake the_local:author` writes those locals against the declaration and the
+gem's current code, and `rake the_local:check` fails if they document more or less
+than was declared — so the docs never drift from the source. Wire the tooling
+with:
 
 ```bash
 bin/rails g the_local:provider

@@ -1,0 +1,21 @@
+scope: resident Claude Code experts — authoring a gem's locals and installing them into a host
+
+install:
+  - bundle exec the_local install
+  - bin/rails g the_local:install
+  - rake the_local:refresh
+  - rake the_local:install
+  - bin/rails g the_local:provider
+
+develop:
+  - rake the_local:author
+  - rake the_local:check
+
+sources:
+  - lib/the_local/cli.rb
+  - lib/the_local/rake.rb
+  - lib/the_local/tasks/the_local.rake
+  - lib/generators/the_local/install_generator.rb
+  - lib/generators/the_local/provider_generator.rb
+  - lib/the_local/author.rb
+  - lib/the_local/provider_check.rb
