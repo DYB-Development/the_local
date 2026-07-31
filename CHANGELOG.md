@@ -1,4 +1,4 @@
-## [Unreleased]
+## [0.4.0] - 2026-07-31
 
 - A provider gem ships **no Ruby and no guide**. Its committed
   `the_local/agents/<gem>-{info,install,develop}.md` are authored by
