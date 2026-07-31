@@ -9,3 +9,6 @@
 
 # the_local installs locals here; they are a working artifact, not source.
 /.claude/
+
+# Built gem artifacts; releases live on RubyGems.
+*.gem
