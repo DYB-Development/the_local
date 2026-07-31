@@ -19,7 +19,7 @@ module TheLocal
     def call
       path = File.join(@destination, @filename)
       existing = File.exist?(path) ? File.read(path) : ""
-      File.write(path, "#{merge(existing)}\n")
+      File.write(path, "#{merge(existing).chomp}\n")
     end
 
     def rule

@@ -59,6 +59,19 @@ module TheLocal
       end
     end
 
+    def test_call_leaves_the_file_byte_identical_across_reruns
+      register_keystone
+
+      Dir.mktmpdir do |dir|
+        path = File.join(dir, "CLAUDE.md")
+        writer(dir).call
+        after_first_run = File.read(path)
+        writer(dir).call
+
+        assert_equal after_first_run, File.read(path)
+      end
+    end
+
     def test_call_preserves_existing_claude_md_content
       register_keystone
 
