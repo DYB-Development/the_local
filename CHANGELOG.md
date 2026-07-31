@@ -1,3 +1,10 @@
+## [0.4.1] - 2026-07-31
+
+- Installing no longer appends a blank line to the host's `CLAUDE.md` on every
+  run. Replacing the marked delegation section left the file's existing trailing
+  newline in place and the write added another on top of it, so the newlines
+  accumulated across `bundle`/refresh cycles.
+
 ## [0.4.0] - 2026-07-31
 
 - A provider gem ships **no Ruby and no guide**. Its committed
