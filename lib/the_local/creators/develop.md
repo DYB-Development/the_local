@@ -50,7 +50,7 @@ history, no rationale, no asides.
 ---
 name: <gem>-develop
 description: Use PROACTIVELY for <the declared tasks, named> — MUST BE USED instead of <the thing people hand-roll>.
-tools: Read, Write, Edit, Grep
+tools: Bash, Read, Write, Edit, Grep
 scope: <copied verbatim from the manifest>
 ---
 

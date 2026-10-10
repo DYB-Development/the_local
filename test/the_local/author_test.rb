@@ -32,6 +32,15 @@ module TheLocal
       assert_equal %w[info install develop], seen
     end
 
+    def test_gives_a_develop_local_a_shell
+      prompts = {}
+      runner = ->(prompt, _dir) { prompts[prompt[/name: the_local-author-(\w+)/, 1]] = prompt }
+
+      with_declared_interface { |root| Author.new(gem_root: root, runner: runner).call }
+
+      assert_includes prompts["develop"], "tools: Bash, Read, Write, Edit, Grep"
+    end
+
     def test_hands_the_prompt_to_claude_after_the_option_terminator
       assert_equal ["--", "a prompt"], Author.claude_command("a prompt").last(2)
     end
