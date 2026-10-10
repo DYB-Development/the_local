@@ -1,4 +1,4 @@
-## [Unreleased]
+## [0.4.3] - 2026-10-10
 
 - A develop local is written with a shell, so it can run the host app's tests,
   linter and git as the host's own process requires.
