@@ -1,3 +1,10 @@
+## [0.4.2] - 2026-10-10
+
+- Installing inside a gem now installs the locals of the runtime dependencies
+  declared in its gemspec, so a dependency no longer has to be listed in the
+  Gemfile as well. A host app still installs locals only for the gems in its
+  own Gemfile.
+
 ## [0.4.1] - 2026-07-31
 
 - Installing no longer appends a blank line to the host's `CLAUDE.md` on every
