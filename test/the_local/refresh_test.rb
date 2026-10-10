@@ -71,6 +71,20 @@ module TheLocal
       end
     end
 
+    def test_call_does_not_install_locals_of_a_dependency_of_a_host_apps_gem
+      Dir.mktmpdir do |dep_dir|
+        write_widgets_agent(dep_dir)
+        gadgets = Spec.new("gadgets", "/gems/gadgets", [Dep.new("widgets")])
+        definition = FakeDefinition.new([Dep.new("gadgets")], [gadgets, Spec.new("widgets", dep_dir)], [:default])
+
+        Dir.mktmpdir do |host|
+          Refresh.call(destination: host, definition: definition)
+
+          refute_path_exists File.join(host, ".claude/agents/widgets-info.md")
+        end
+      end
+    end
+
     private
 
     def write_widgets_agent(gem_dir)
