@@ -27,9 +27,9 @@ module TheLocal
         #{BEGIN_MARKER}
         ## Delegate to your locals
 
-        This project has installed expert subagents. Before doing work yourself,
-        read the agents' descriptions, and when one owns the work, delegate to it
-        rather than working from memory.
+        This project has installed expert subagents. Before doing any work, read the
+        agents' descriptions. When an expert owns the work, delegate it to that expert.
+        Never do work an expert owns yourself, and never do it from memory.
         #{END_MARKER}
       MARKDOWN
     end

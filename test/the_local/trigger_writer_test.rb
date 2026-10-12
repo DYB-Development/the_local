@@ -103,7 +103,13 @@ module TheLocal
 
     def test_rule_tells_a_session_to_find_the_owning_agent_by_its_description
       Dir.mktmpdir do |dir|
-        assert_includes writer(dir).rule, "read the agents' descriptions, and when one owns the work, delegate to it"
+        assert_includes writer(dir).rule, "read the\nagents' descriptions"
+      end
+    end
+
+    def test_rule_forbids_a_session_from_doing_an_experts_work_itself
+      Dir.mktmpdir do |dir|
+        assert_includes writer(dir).rule, "Never do work an expert owns yourself, and never do it from memory."
       end
     end
   end
