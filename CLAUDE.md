@@ -2,12 +2,8 @@
 ## Delegate to your locals
 
 This project has installed expert subagents. Before doing work yourself,
-check whether a local owns it and delegate — never work from memory on
-something a local covers:
-
-
-
-See each agent's description for specifics.
+read the agents' descriptions, and when one owns the work, delegate to it
+rather than working from memory.
 <!-- the_local:end -->
 
 <!-- the_local:process:begin -->

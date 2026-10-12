@@ -303,7 +303,7 @@ Each field answers one question:
 
 | Field | Question | Why it matters |
 |---|---|---|
-| `scope` | What user-visible tasks does this gem own? | The one line the host's `CLAUDE.md` delegation rule names. |
+| `scope` | What user-visible tasks does this gem own? | A one-line summary of what the gem owns, kept with its locals. The host's `CLAUDE.md` does not repeat it. |
 | `description` | What would someone actually ask for? | **The routing surface.** The host agent matches a task against it to decide whether to delegate. |
 | `body` | What ceremony must never be skipped? What is out of scope? | A standing instruction. Facts buried at line 90 of the reference are not instructions. |
 
