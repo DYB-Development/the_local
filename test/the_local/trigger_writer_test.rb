@@ -86,5 +86,19 @@ module TheLocal
         assert File.read(path).start_with?("# My App\n\nHouse rules.")
       end
     end
+
+    def test_call_replaces_an_older_long_delegation_list_in_place
+      register_keystone
+
+      Dir.mktmpdir do |dir|
+        path = File.join(dir, "CLAUDE.md")
+        old_list = "## Delegate to your locals\n\n- UI — pages, forms, tables → keystone-* agents"
+        old_section = "#{TriggerWriter::BEGIN_MARKER}\n#{old_list}\n#{TriggerWriter::END_MARKER}"
+        File.write(path, "# My App\n\n#{old_section}\n\nHouse rules.\n")
+        writer(dir).call
+
+        assert_equal "# My App\n\n#{writer(dir).rule}\n\nHouse rules.\n", File.read(path)
+      end
+    end
   end
 end
