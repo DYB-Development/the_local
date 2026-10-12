@@ -100,5 +100,11 @@ module TheLocal
         assert_equal "# My App\n\n#{writer(dir).rule}\n\nHouse rules.\n", File.read(path)
       end
     end
+
+    def test_rule_tells_a_session_to_find_the_owning_agent_by_its_description
+      Dir.mktmpdir do |dir|
+        assert_includes writer(dir).rule, "read the agents' descriptions, and when one owns the work, delegate to it"
+      end
+    end
   end
 end
