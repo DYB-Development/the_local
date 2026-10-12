@@ -28,12 +28,8 @@ module TheLocal
         ## Delegate to your locals
 
         This project has installed expert subagents. Before doing work yourself,
-        check whether a local owns it and delegate — never work from memory on
-        something a local covers:
-
-        #{bullets.join("\n")}
-
-        See each agent's description for specifics.
+        read the agents' descriptions, and when one owns the work, delegate to it
+        rather than working from memory.
         #{END_MARKER}
       MARKDOWN
     end
@@ -48,17 +44,6 @@ module TheLocal
       return rule if existing.strip.empty?
 
       "#{existing.chomp}\n\n#{rule}"
-    end
-
-    def bullets
-      allowed_providers.map do |provider|
-        target = "#{provider.prefix}-* agents"
-        "- #{[provider.scope, target].compact.join(" → ")}"
-      end
-    end
-
-    def allowed_providers
-      @registry.providers.select { |provider| @allowed_gems.include?(provider.gem_name) }
     end
   end
 end

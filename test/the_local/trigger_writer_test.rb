@@ -19,11 +19,14 @@ module TheLocal
       TriggerWriter.new(registry: TheLocal.registry, destination: dir, allowed_gems: allowed_gems)
     end
 
-    def test_rule_lists_a_delegation_bullet_per_provider
+    def test_rule_names_no_gem_and_repeats_no_scope
       register_keystone
 
       Dir.mktmpdir do |dir|
-        assert_includes writer(dir).rule, "- UI — pages, forms, tables → keystone-* agents"
+        rule = writer(dir).rule
+
+        assert_equal [false, false, false],
+                     [rule.include?("UI — pages, forms, tables"), rule.include?("keystone"), rule.include?("→")]
       end
     end
 
